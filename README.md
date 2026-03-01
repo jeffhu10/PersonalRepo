@@ -1,0 +1,1 @@
+This file serves as my Sandbox to work with different AI features, in particular Claude.
