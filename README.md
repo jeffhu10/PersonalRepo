@@ -11,4 +11,4 @@ Personal websites I build and host on Cloudflare. Each site is a self-contained 
 
 ## Deploying
 
-Zip the site's folder and upload it to Cloudflare. Zips are git-ignored, so they never end up in the repo.
+Select everything *inside* a site's folder and zip it, so `index.html` sits at the top of the zip, then upload it to Cloudflare. Zips are git-ignored, so they never end up in the repo.
