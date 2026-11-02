@@ -1,0 +1,3276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Sunday Spinner · Element Athletics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --bg-2: #161616;
+    --bg-3: #1f1f1f;
+    --ink: #f5f1e8;
+    --ink-dim: #8a8275;
+    --gold: #d5b75f;
+    --gold-dim: #b1975b;
+    --gold-warm: #e8c97a;
+    --steel: #2a2a2a;
+    --c-red: #e63946;
+    --c-orange: #f77f00;
+    --c-blue: #4cc9f0;
+    --c-green: #06d6a0;
+    --c-purple: #a663cc;
+    --c-pink: #f72585;
+    --tier-min: #06d6a0;
+    --tier-med: #d5b75f;
+    --tier-max: #e63946;
+    --good: #06d6a0;
+    --danger: #e63946;
+    --half-a: #4cc9f0;   /* Part A: skill/strength — cool blue */
+    --half-b: #f77f00;   /* Part B: metcon — fiery orange */
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    background: var(--bg); color: var(--ink);
+    font-family: 'Inter', -apple-system, sans-serif;
+    min-height: 100vh; overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image:
+      radial-gradient(circle at 15% 25%, rgba(213,183,95,0.08), transparent 50%),
+      radial-gradient(circle at 85% 75%, rgba(213,183,95,0.05), transparent 50%);
+    pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    pointer-events: none; opacity: 0.5; z-index: 1; mix-blend-mode: overlay;
+  }
+
+  main {
+    position: relative; z-index: 2;
+    padding: 20px clamp(14px, 4vw, 50px) 60px;
+    max-width: 1700px; margin: 0 auto;
+  }
+
+  /* ============ HEADER ============ */
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 2px solid var(--gold-dim);
+    padding-bottom: 14px; margin-bottom: 24px;
+    gap: 12px; flex-wrap: wrap;
+  }
+  .brand-block { display: flex; align-items: center; gap: 14px; }
+  .logo-mark { width: 44px; height: 44px; flex-shrink: 0; }
+  .brand-text { line-height: 1; }
+  .brand-text .gym {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: clamp(18px, 3.5vw, 28px);
+    letter-spacing: 0.18em;
+    color: var(--gold);
+    display: block;
+  }
+  .brand-text .gym-sub {
+    font-family: 'Inter', sans-serif;
+    font-size: 9px; letter-spacing: 0.32em;
+    color: var(--gold-dim); font-weight: 600;
+    margin-top: 3px; display: block;
+  }
+  .brand-text .product {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(16px, 2.5vw, 22px);
+    letter-spacing: 0.08em; color: var(--ink);
+    margin-top: 8px; display: block;
+  }
+
+  .header-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .coach-pill {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg-2); border: 1px solid var(--gold-dim);
+    padding: 6px 12px 6px 6px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .coach-pill:hover { border-color: var(--gold); }
+  .coach-pill .avatar {
+    width: 28px; height: 28px;
+    background: var(--gold); color: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Archivo Black', sans-serif; font-size: 13px;
+  }
+  .coach-pill .name { font-size: 12px; font-weight: 600; color: var(--ink); letter-spacing: 0.05em; }
+  .coach-pill .name small {
+    display: block; font-size: 9px; font-weight: 500;
+    color: var(--ink-dim); letter-spacing: 0.15em; text-transform: uppercase;
+  }
+
+  .icon-btn {
+    background: transparent; color: var(--ink-dim);
+    border: 1px solid var(--steel);
+    padding: 8px 12px; cursor: pointer; transition: all 0.15s;
+    font-family: 'Inter', sans-serif; font-size: 11px;
+    font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .icon-btn:hover { color: var(--gold); border-color: var(--gold); }
+
+  /* ============ LAYOUT ============ */
+  .grid {
+    display: grid; grid-template-columns: minmax(0, 1fr) 400px;
+    gap: 28px; align-items: start;
+  }
+  .grid > * { min-width: 0; }   /* prevent grid items from overflowing via their intrinsic content */
+  @media (max-width: 1100px) { .grid { grid-template-columns: 1fr; } }
+
+  /* ============ STAGE PANEL ============ */
+  .stage-panel {
+    background: var(--bg-2); border: 2px solid var(--gold);
+    padding: 22px; border-radius: 4px;
+    box-shadow: 0 0 0 4px rgba(213,183,95,0.08);
+    margin-bottom: 16px;
+  }
+  .stage-panel.dim { border-color: var(--steel); box-shadow: none; opacity: 0.85; }
+  .stage-panel.half-a { border-color: var(--half-a); box-shadow: 0 0 0 4px rgba(76,201,240,0.08); }
+  .stage-panel.half-a.dim { border-color: var(--steel); box-shadow: none; }
+  .stage-panel.half-b { border-color: var(--half-b); box-shadow: 0 0 0 4px rgba(247,127,0,0.1); }
+  .stage-panel.half-b.dim { border-color: var(--steel); box-shadow: none; }
+
+  .stage-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 12px; flex-wrap: wrap; gap: 8px;
+  }
+  .stage-label {
+    font-family: 'Inter', sans-serif; font-weight: 700;
+    font-size: 10px; letter-spacing: 0.25em; color: var(--ink-dim);
+  }
+  .stage-panel.half-a .stage-label { color: var(--half-a); }
+  .stage-panel.half-b .stage-label { color: var(--half-b); }
+  .stage-title {
+    font-family: 'Bebas Neue', sans-serif; font-size: 30px;
+    letter-spacing: 0.06em; line-height: 1; color: var(--ink);
+  }
+  .stage-half-pill {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 11px; letter-spacing: 0.2em;
+    padding: 4px 10px;
+    border: 1.5px solid;
+  }
+  .stage-half-pill.a { color: var(--half-a); border-color: var(--half-a); }
+  .stage-half-pill.b { color: var(--half-b); border-color: var(--half-b); }
+
+  .stage-context {
+    font-size: 12px; color: var(--ink-dim); letter-spacing: 0.04em;
+    margin-bottom: 14px; line-height: 1.5;
+  }
+  .stage-context .hot { color: var(--gold-warm); font-weight: 600; }
+
+  /* ============ HORIZONTAL SCROLLER ============ */
+  .scroller-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto 18px;
+    height: 110px;
+    background: var(--bg);
+    border: 1px solid var(--steel);
+    overflow: hidden;
+    border-radius: 4px;
+  }
+
+  .scroller-indicator {
+    position: absolute; top: 0; bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 3px;
+    background: var(--gold);
+    z-index: 10;
+    box-shadow: 0 0 12px rgba(213,183,95,0.6);
+  }
+  .scroller-indicator.a { background: var(--half-a); box-shadow: 0 0 12px rgba(76,201,240,0.6); }
+  .scroller-indicator.b { background: var(--half-b); box-shadow: 0 0 12px rgba(247,127,0,0.6); }
+  .scroller-indicator::before, .scroller-indicator::after {
+    content: ''; position: absolute; left: 50%;
+    transform: translateX(-50%);
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+  }
+  .scroller-indicator::before { top: 0; border-top: 10px solid var(--gold); }
+  .scroller-indicator.a::before { border-top-color: var(--half-a); }
+  .scroller-indicator.b::before { border-top-color: var(--half-b); }
+  .scroller-indicator::after { bottom: 0; border-bottom: 10px solid var(--gold); }
+  .scroller-indicator.a::after { border-bottom-color: var(--half-a); }
+  .scroller-indicator.b::after { border-bottom-color: var(--half-b); }
+
+  .scroller-wrap::before, .scroller-wrap::after {
+    content: ''; position: absolute; top: 0; bottom: 0;
+    width: 60px; z-index: 5; pointer-events: none;
+  }
+  .scroller-wrap::before { left: 0; background: linear-gradient(90deg, var(--bg) 0%, transparent 100%); }
+  .scroller-wrap::after { right: 0; background: linear-gradient(-90deg, var(--bg) 0%, transparent 100%); }
+
+  .scroller-track { display: flex; height: 100%; align-items: center; will-change: transform; }
+  .scroller-item {
+    flex: 0 0 160px; height: 90px; margin: 0 4px;
+    background: var(--bg-2); border: 2px solid var(--steel);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 6px; text-align: center;
+  }
+  .scroller-item .item-color { width: 100%; height: 6px; margin-bottom: 6px; }
+  .scroller-item .item-label {
+    font-family: 'Bebas Neue', sans-serif; font-size: 22px;
+    letter-spacing: 0.03em; line-height: 1; color: var(--ink);
+    word-break: break-word; overflow: hidden;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  }
+  .scroller-item .item-sub {
+    font-family: 'Inter', sans-serif; font-size: 9px;
+    letter-spacing: 0.18em; color: var(--ink-dim);
+    margin-top: 4px; text-transform: uppercase; font-weight: 600;
+  }
+  @media (max-width: 600px) {
+    .scroller-wrap { height: 95px; }
+    .scroller-item { flex: 0 0 130px; height: 78px; margin: 0 3px; }
+    .scroller-item .item-label { font-size: 18px; }
+  }
+
+  .scroller-item.winner {
+    border-color: var(--gold);
+    background: rgba(213,183,95,0.1);
+    box-shadow: 0 0 20px rgba(213,183,95,0.4);
+  }
+  .scroller-item.winner .item-label { color: var(--gold-warm); }
+
+  /* ============ RESULT ============ */
+  .result {
+    background: var(--bg); border: 1px solid var(--steel);
+    padding: 12px 16px; margin-bottom: 12px; min-height: 56px;
+  }
+  .result-label {
+    font-family: 'Inter', sans-serif; font-weight: 600;
+    font-size: 9px; color: var(--ink-dim);
+    text-transform: uppercase; letter-spacing: 0.22em; margin-bottom: 4px;
+  }
+  .result-value {
+    font-family: 'Bebas Neue', sans-serif; font-size: 24px;
+    line-height: 1.1; color: var(--gold-warm); letter-spacing: 0.02em;
+  }
+  .result-value.empty { color: var(--steel); font-style: italic; font-size: 14px; }
+
+  /* ============ BUTTONS ============ */
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .spin-btn {
+    flex: 1; min-width: 160px;
+    padding: 14px 20px;
+    background: var(--gold); color: var(--bg);
+    border: 2px solid var(--gold);
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 13px; letter-spacing: 0.18em;
+    cursor: pointer; transition: all 0.15s;
+    text-transform: uppercase;
+  }
+  .spin-btn:hover:not(:disabled) {
+    background: var(--gold-warm); border-color: var(--gold-warm);
+    transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--bg-3);
+  }
+  .spin-btn:active:not(:disabled) { transform: translate(0, 0); box-shadow: none; }
+  .spin-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .spin-btn.half-a { background: var(--half-a); border-color: var(--half-a); }
+  .spin-btn.half-a:hover:not(:disabled) { background: #6fd6f5; border-color: #6fd6f5; }
+  .spin-btn.half-b { background: var(--half-b); border-color: var(--half-b); }
+  .spin-btn.half-b:hover:not(:disabled) { background: #ff9a2e; border-color: #ff9a2e; }
+  .spin-btn.secondary {
+    background: transparent; color: var(--ink);
+    font-size: 11px; padding: 12px 14px;
+    border: 1px dashed var(--steel); letter-spacing: 0.15em;
+    flex: 0 0 auto;
+  }
+  .spin-btn.secondary:hover:not(:disabled) {
+    color: var(--gold); border-color: var(--gold);
+    background: transparent; box-shadow: none; transform: none;
+  }
+  .spin-btn.big {
+    padding: 20px 28px;
+    font-size: 16px; letter-spacing: 0.22em;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-warm) 100%);
+    box-shadow: 0 0 20px rgba(213,183,95,0.3);
+  }
+  .spin-btn.big:hover:not(:disabled) {
+    box-shadow: 0 0 30px rgba(213,183,95,0.5), 4px 4px 0 var(--bg-3);
+  }
+
+  /* ============ PROGRESS PANEL ============ */
+  .progress {
+    background: var(--bg-2); border: 2px solid var(--steel);
+    padding: 18px; margin-top: 16px;
+    border-radius: 4px;
+  }
+  .progress-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 12px;
+  }
+  .progress-title {
+    font-family: 'Archivo Black', sans-serif; font-size: 12px;
+    letter-spacing: 0.22em; color: var(--ink);
+  }
+  .progress-count {
+    font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: var(--gold);
+  }
+  .progress-bar {
+    height: 3px; background: var(--steel); margin-bottom: 14px; overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--half-a), var(--gold-warm), var(--half-b));
+    transition: width 0.5s ease;
+  }
+
+  .half-divider {
+    display: flex; align-items: center; gap: 10px;
+    margin: 16px 0 8px;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 12px; letter-spacing: 0.25em;
+  }
+  .half-divider:first-child { margin-top: 0; }
+  .half-divider.a { color: var(--half-a); }
+  .half-divider.b { color: var(--half-b); }
+  .half-divider::before, .half-divider::after {
+    content: ''; flex: 1; height: 1px;
+  }
+  .half-divider.a::before, .half-divider.a::after { background: var(--half-a); opacity: 0.4; }
+  .half-divider.b::before, .half-divider.b::after { background: var(--half-b); opacity: 0.4; }
+
+  .section-header-progress {
+    font-family: 'Archivo Black', sans-serif; font-size: 10px;
+    letter-spacing: 0.22em; color: var(--ink-dim);
+    margin-top: 8px; margin-bottom: 6px; padding-left: 4px;
+  }
+
+  .slot-block {
+    display: grid; grid-template-columns: 36px 1fr 100px 70px;
+    gap: 10px; align-items: center;
+    padding: 10px 12px; margin-bottom: 4px;
+    background: var(--bg); border-left: 3px solid var(--steel);
+    transition: all 0.3s;
+  }
+  .slot-block.current { border-left-color: var(--gold); background: rgba(213,183,95,0.06); }
+  .slot-block.current.a { border-left-color: var(--half-a); background: rgba(76,201,240,0.06); }
+  .slot-block.current.b { border-left-color: var(--half-b); background: rgba(247,127,0,0.06); }
+  .slot-block.done { border-left-color: var(--good); }
+  .slot-block.empty { color: var(--ink-dim); }
+  .slot-block.dose-spinning { background: rgba(213,183,95,0.1); border-left-color: var(--gold-warm); }
+  .slot-position {
+    font-family: 'Archivo Black', sans-serif; font-size: 11px;
+    color: var(--ink-dim); letter-spacing: 0.05em;
+  }
+  .slot-block.current .slot-position { color: var(--gold); }
+  .slot-block.done .slot-position { color: var(--good); }
+  .slot-move {
+    font-family: 'Bebas Neue', sans-serif; font-size: 17px; letter-spacing: 0.02em;
+  }
+  .slot-dose {
+    font-family: 'Bebas Neue', sans-serif; font-size: 17px; color: var(--gold-warm);
+    text-align: right; overflow: hidden;
+  }
+  .slot-dose.cycling { color: var(--ink); animation: doseCycle 0.08s steps(1, end) infinite; }
+  @keyframes doseCycle { 0% { opacity: 1; } 50% { opacity: 0.5; } }
+  .slot-tier {
+    font-size: 10px; text-align: center; letter-spacing: 0.18em;
+    text-transform: uppercase; padding: 3px 6px; border: 1px solid;
+    font-weight: 700; font-family: 'Inter', sans-serif;
+    color: var(--ink-dim); border-color: var(--steel);
+  }
+  .slot-tier.min { color: var(--tier-min); border-color: var(--tier-min); }
+  .slot-tier.med { color: var(--tier-med); border-color: var(--tier-med); }
+  .slot-tier.max { color: var(--tier-max); border-color: var(--tier-max); }
+  .slot-tier.cycling-tier { animation: tierFlicker 0.1s steps(1, end) infinite; }
+  @keyframes tierFlicker { 0% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  @media (max-width: 600px) {
+    .slot-block {
+      grid-template-columns: 30px 1fr 60px;
+      grid-template-rows: auto auto;
+      gap: 4px 8px; padding: 8px 10px;
+    }
+    .slot-dose { grid-column: 2; grid-row: 2; font-size: 15px; text-align: left; }
+    .slot-tier { grid-column: 3; grid-row: 1 / 3; align-self: center; }
+    .slot-move { font-size: 15px; }
+  }
+
+  /* ============ FINAL DOSE REVEAL ============ */
+  .dose-reveal-panel {
+    background: linear-gradient(135deg, var(--bg-2) 0%, var(--bg) 100%);
+    border: 2px solid var(--gold); padding: 26px;
+    margin-bottom: 16px; text-align: center;
+    border-radius: 4px;
+    box-shadow: 0 0 30px rgba(213,183,95,0.15);
+  }
+  .dose-reveal-panel .reveal-label {
+    font-family: 'Inter', sans-serif; font-weight: 700;
+    font-size: 10px; letter-spacing: 0.3em; color: var(--gold-dim);
+    margin-bottom: 6px;
+  }
+  .dose-reveal-panel .reveal-title {
+    font-family: 'Bebas Neue', sans-serif; font-size: 34px;
+    letter-spacing: 0.05em; color: var(--ink); line-height: 1;
+    margin-bottom: 6px;
+  }
+  .dose-reveal-panel .reveal-sub {
+    font-size: 12px; color: var(--ink-dim);
+    margin-bottom: 18px; letter-spacing: 0.05em;
+  }
+
+  /* ============ WORKOUT CARD ============ */
+  .workout-card {
+    background: linear-gradient(140deg, var(--bg-2) 0%, #0a0a0a 100%);
+    border: 2px solid var(--gold); padding: 22px;
+    position: sticky; top: 16px;
+    border-radius: 4px;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+    /* Hide scrollbar visually but keep functionality */
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold-dim) transparent;
+  }
+  .workout-card::-webkit-scrollbar { width: 6px; }
+  .workout-card::-webkit-scrollbar-track { background: transparent; }
+  .workout-card::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 3px; }
+  .workout-card.empty { border-color: var(--steel); }
+  .wc-stamp {
+    font-family: 'Archivo Black', sans-serif; font-size: 10px;
+    letter-spacing: 0.28em; color: var(--gold); margin-bottom: 4px;
+  }
+  .wc-title {
+    font-family: 'Bebas Neue', sans-serif; font-size: 28px;
+    line-height: 0.95; margin-bottom: 14px;
+    border-bottom: 2px solid var(--gold-dim); padding-bottom: 10px;
+    color: var(--ink);
+  }
+  .wc-half-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-top: 18px; margin-bottom: 8px;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 13px; letter-spacing: 0.22em;
+  }
+  .wc-half-block:first-child .wc-half-header,
+  #wcBody > .wc-half-header:first-child { margin-top: 0; }
+  .wc-half-header.a { color: var(--half-a); }
+  .wc-half-header.b { color: var(--half-b); }
+  .wc-half-header::before {
+    content: ''; width: 22px; height: 2px; background: currentColor;
+  }
+  .wc-half-format {
+    font-family: 'Bebas Neue', sans-serif; font-size: 24px;
+    line-height: 1.05; color: var(--ink); letter-spacing: 0.02em;
+  }
+  .wc-half-blurb {
+    font-size: 11px; color: var(--ink-dim); letter-spacing: 0.04em;
+    margin-bottom: 8px; line-height: 1.4;
+  }
+  .wc-section-header {
+    font-family: 'Inter', sans-serif; font-weight: 700;
+    font-size: 10px; letter-spacing: 0.22em; color: var(--ink-dim);
+    margin-bottom: 4px; margin-top: 10px;
+  }
+  .wc-line {
+    font-family: 'Bebas Neue', sans-serif; font-size: 20px; line-height: 1.3;
+  }
+  .wc-line .num {
+    color: var(--gold-warm); margin-right: 8px;
+    min-width: 60px; display: inline-block;
+  }
+  .wc-line.pending { color: var(--ink-dim); font-style: italic; opacity: 0.5; }
+
+  /* Strength scheme block — appears under the lift for STRENGTH format */
+  .wc-scheme {
+    margin-top: 10px; padding: 10px 12px;
+    background: rgba(255,255,255,0.02);
+    border-left: 3px solid;
+  }
+  .wc-scheme.a { border-left-color: var(--half-a); }
+  .wc-scheme.b { border-left-color: var(--half-b); }
+  .wc-scheme-label {
+    font-family: 'Inter', sans-serif; font-weight: 700;
+    font-size: 10px; letter-spacing: 0.2em;
+    color: var(--gold); text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .wc-scheme-line {
+    font-size: 12px; line-height: 1.5;
+    color: var(--ink); margin-bottom: 3px;
+  }
+  .wc-scheme-line strong {
+    color: var(--gold-warm); font-weight: 700;
+    margin-right: 4px;
+  }
+
+  /* "How to do it" instructions block */
+  .wc-notes {
+    margin-top: 10px; padding: 10px 12px;
+    background: rgba(255,255,255,0.02);
+    border-left: 3px solid;
+  }
+  .wc-notes.a { border-left-color: var(--half-a); }
+  .wc-notes.b { border-left-color: var(--half-b); }
+  .wc-notes-label {
+    font-family: 'Inter', sans-serif; font-weight: 700;
+    font-size: 10px; letter-spacing: 0.2em;
+    color: var(--ink-dim); text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .wc-notes-line {
+    font-size: 12px; line-height: 1.55;
+    color: var(--ink); margin-bottom: 4px;
+    padding-left: 14px; position: relative;
+  }
+  .wc-notes-line::before {
+    content: '›'; position: absolute; left: 0;
+    color: var(--gold-dim); font-weight: 700;
+  }
+
+  .wc-empty-msg {
+    color: var(--ink-dim); font-size: 13px;
+    text-align: center; padding: 28px 14px; font-style: italic; line-height: 1.5;
+  }
+  .wc-actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+  .wc-actions button {
+    flex: 1; min-width: 80px; padding: 10px 8px;
+    background: transparent; color: var(--ink); border: 1px solid var(--ink);
+    font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.18em; text-transform: uppercase; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .wc-actions button:hover { background: var(--gold); color: var(--bg); border-color: var(--gold); }
+
+  /* ============ HISTORY ============ */
+  .history { margin-top: 36px; padding-top: 20px; border-top: 2px solid var(--steel); }
+  .history-header {
+    display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px;
+  }
+  .history-header h2 {
+    font-family: 'Archivo Black', sans-serif; font-size: 16px; letter-spacing: 0.18em;
+  }
+  .history-header .clear {
+    font-size: 10px; color: var(--ink-dim); background: none; border: none;
+    cursor: pointer; letter-spacing: 0.18em; text-transform: uppercase;
+    font-family: 'Inter', sans-serif; font-weight: 600;
+  }
+  .history-header .clear:hover { color: var(--danger); }
+  .history-list {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px;
+  }
+  .hist-card {
+    background: var(--bg-2); border: 1px solid var(--steel);
+    padding: 12px; font-size: 12px; line-height: 1.5;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .hist-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+  .hist-date {
+    font-size: 9px; color: var(--ink-dim);
+    text-transform: uppercase; letter-spacing: 0.18em; margin-bottom: 5px; font-weight: 600;
+  }
+  .hist-format-line {
+    font-family: 'Bebas Neue', sans-serif; font-size: 15px;
+    margin-bottom: 4px;
+  }
+  .hist-format-line .a-mark { color: var(--half-a); margin-right: 4px; }
+  .hist-format-line .b-mark { color: var(--half-b); margin-right: 4px; }
+  .hist-empty {
+    color: var(--ink-dim); font-style: italic;
+    grid-column: 1 / -1; text-align: center; padding: 30px; font-size: 13px;
+  }
+
+  /* ============ TOAST ============ */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--gold); color: var(--bg);
+    padding: 12px 24px;
+    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    z-index: 200; transition: transform 0.3s;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.error { background: var(--danger); color: var(--ink); }
+
+  /* ============ PHONE MODE ============
+     Auto-activates below 700px. No manual toggle — coaches just open the URL
+     and the layout adapts. Key design: workout card becomes a sticky bottom
+     bar so the building WOD is ALWAYS visible while spinning. */
+  @media (max-width: 700px) {
+    main {
+      padding: 12px 14px 100px;   /* bottom padding leaves room for floating card */
+    }
+
+    /* Header collapses to a single tight row */
+    header {
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+      gap: 8px;
+    }
+    .brand-block { gap: 8px; flex: 1; min-width: 0; }
+    .logo-mark { width: 36px; height: 36px; }
+    .brand-text .gym { font-size: 16px; }
+    .brand-text .gym-sub { font-size: 8px; }
+    .brand-text .product { font-size: 13px; margin-top: 4px; }
+    .header-right { gap: 6px; }
+    .coach-pill { padding: 4px 8px 4px 4px; }
+    .coach-pill .avatar { width: 24px; height: 24px; font-size: 11px; }
+    .coach-pill .name { font-size: 11px; }
+    .coach-pill .name small { font-size: 8px; }
+    .icon-btn { padding: 6px 8px; font-size: 10px; }
+
+    /* Stage panels: tighter */
+    .stage-panel { padding: 14px; margin-bottom: 10px; }
+    .stage-header { margin-bottom: 8px; }
+    .stage-title { font-size: 22px; }
+    .stage-label { font-size: 9px; }
+    .stage-half-pill { font-size: 9px; padding: 3px 7px; }
+    .stage-context { font-size: 11px; margin-bottom: 10px; }
+
+    /* Make completed (dim) stages collapse to a thin summary bar */
+    .stage-panel.dim {
+      padding: 10px 14px;
+      opacity: 0.7;
+    }
+    .stage-panel.dim .scroller-wrap,
+    .stage-panel.dim .result,
+    .stage-panel.dim .btn-row,
+    .stage-panel.dim .stage-context { display: none; }
+
+    /* Scroller smaller on mobile */
+    .scroller-wrap { height: 80px; margin-bottom: 12px; }
+    .scroller-item { flex: 0 0 110px; height: 66px; }
+    .scroller-item .item-label { font-size: 15px; }
+    .scroller-item .item-sub { font-size: 8px; margin-top: 2px; }
+
+    /* Result box tighter */
+    .result { padding: 10px 12px; min-height: 44px; margin-bottom: 10px; }
+    .result-label { font-size: 9px; margin-bottom: 3px; }
+    .result-value { font-size: 18px; }
+    .result-value.empty { font-size: 12px; }
+
+    /* Buttons: full-width on phones, no min-width */
+    .btn-row { gap: 6px; }
+    .spin-btn { min-width: 0; padding: 12px 10px; font-size: 12px; letter-spacing: 0.12em; }
+    .spin-btn.secondary { font-size: 10px; padding: 10px 8px; }
+    .spin-btn.big { padding: 16px 20px; font-size: 14px; }
+
+    /* Dose reveal panel tighter */
+    .dose-reveal-panel { padding: 18px; }
+    .dose-reveal-panel .reveal-title { font-size: 24px; }
+    .dose-reveal-panel .reveal-sub { font-size: 11px; margin-bottom: 12px; }
+    .dose-reveal-panel .reveal-label { font-size: 9px; }
+
+    /* Progress panel: compact */
+    .progress { padding: 14px; }
+    .progress-title { font-size: 11px; }
+    .progress-count { font-size: 20px; }
+    .half-divider { font-size: 11px; margin: 12px 0 6px; }
+    .section-header-progress { font-size: 9px; }
+
+    /* History list: single column, smaller cards */
+    .history-list { grid-template-columns: 1fr; gap: 8px; }
+    .history-header h2 { font-size: 14px; }
+
+    /* ===== Floating workout card (the big mobile UX win) =====
+       Pulled out of the sidebar into a fixed bottom bar. Collapsed by default
+       — shows just the title + tap target. Expands upward when tapped to
+       reveal the full WOD. */
+    .grid { gap: 0; }
+    aside { position: static; }
+    .workout-card {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      top: auto;
+      max-width: none; max-height: 60px;
+      margin: 0; padding: 12px 16px;
+      border-width: 2px 0 0 0;
+      border-radius: 0;
+      overflow: hidden;
+      z-index: 100;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+      cursor: pointer;
+    }
+    .workout-card.expanded {
+      max-height: 75vh;
+      padding: 18px 16px;
+      overflow-y: auto;
+      cursor: default;
+    }
+    .workout-card .wc-stamp { font-size: 9px; margin-bottom: 0; display: inline; }
+    .workout-card .wc-title {
+      font-size: 18px;
+      line-height: 1.2;
+      margin: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+      display: inline-block;
+      margin-left: 8px;
+    }
+    /* Chevron indicator showing "tap to expand" */
+    .workout-card::after {
+      content: '⌃';
+      position: absolute;
+      top: 14px; right: 16px;
+      font-size: 18px;
+      color: var(--gold);
+      transition: transform 0.3s;
+    }
+    .workout-card.expanded::after { transform: rotate(180deg); top: 12px; }
+    .workout-card.expanded .wc-title {
+      display: block; margin-left: 0; margin-top: 4px;
+      font-size: 22px; margin-bottom: 12px;
+      padding-bottom: 8px; border-bottom: 1px solid var(--gold-dim);
+    }
+    .workout-card.expanded .wc-stamp { display: block; margin-bottom: 0; }
+    /* Hide body content when collapsed */
+    .workout-card #wcBody, .workout-card #wcActions { display: none; }
+    .workout-card.expanded #wcBody { display: block; }
+    .workout-card.expanded #wcActions { display: flex; }
+    /* Empty card: smaller hint */
+    .workout-card.empty .wc-title { font-size: 14px; color: var(--ink-dim); }
+    .workout-card.empty::after { display: none; }
+
+    .wc-half-format { font-size: 22px; }
+    .wc-line { font-size: 17px; }
+    .wc-line .num { min-width: 50px; }
+    .wc-scheme-line, .wc-notes-line { font-size: 11px; }
+
+    /* Settings modal: full-screen on phone */
+    .modal-bg { padding: 0; }
+    .modal {
+      max-width: none;
+      min-height: 100vh;
+      padding: 16px;
+      border-width: 0;
+      border-radius: 0;
+    }
+    .modal-title { font-size: 15px; }
+    .tab-btn { padding: 8px 10px; font-size: 10px; }
+    .info-box { font-size: 11px; padding: 8px 12px; }
+
+    /* Format card in editor — stack inputs vertically */
+    .format-card { padding: 12px; }
+    .format-card-header { gap: 6px; }
+    .format-card-header input[type=text],
+    .format-card-header .half-select,
+    .format-card-header .include-check { width: 100%; min-width: 0; flex: none; }
+    .formats-section-header { font-size: 12px; margin: 14px 0 8px; }
+
+    .reset-bar { gap: 8px; flex-direction: column; align-items: stretch; }
+    .reset-bar-left, .reset-bar-right { width: 100%; }
+    .reset-bar-right { margin-left: 0; }
+    .add-btn { width: 100%; }
+
+    /* Profile picker: smaller tiles */
+    .profile-screen { padding: 24px 16px; }
+    .profile-header { margin-bottom: 24px; }
+    .profile-header .logo-mark { width: 48px; height: 48px; }
+    .coach-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    .coach-tile { padding: 18px 10px; }
+    .coach-tile .avatar-lg { width: 44px; height: 44px; font-size: 18px; }
+    .coach-tile .name-lg { font-size: 18px; }
+
+    /* Small modal: tighter */
+    .small-modal { padding: 20px; }
+    .small-modal h3 { font-size: 22px; }
+
+    /* Exit TV button — smaller for phone-as-TV use */
+    .tv-exit { top: 10px; right: 10px; padding: 8px 12px; font-size: 10px; }
+  }
+
+  /* Very narrow phones (iPhone SE etc, ~360px) */
+  @media (max-width: 380px) {
+    .header-right { flex-wrap: wrap; }
+    .stage-title { font-size: 19px; }
+    .scroller-item { flex: 0 0 95px; }
+    .scroller-item .item-label { font-size: 13px; }
+    .coach-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ============ TV MODE ============
+     Optimised for casting to a wall-mounted gym TV (typically viewed
+     3–5m away). Workout content is the hero; everything else shrinks. */
+  body.tv-mode main { padding: 16px 28px; max-width: 1920px; }
+  body.tv-mode header { padding-bottom: 8px; margin-bottom: 12px; }
+  body.tv-mode header .icon-btn,
+  body.tv-mode header .coach-pill { display: none; }
+
+  /* Floating Exit TV button — hidden in normal mode, shown only in TV mode */
+  .tv-exit {
+    position: fixed; top: 16px; right: 16px;
+    display: none;
+    z-index: 150;
+    padding: 10px 16px;
+    background: rgba(13,13,13,0.85);
+    color: var(--gold);
+    border: 2px solid var(--gold);
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 11px; letter-spacing: 0.2em;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    transition: all 0.15s;
+  }
+  .tv-exit:hover {
+    background: var(--gold); color: var(--bg);
+  }
+  body.tv-mode .tv-exit { display: block; }
+  body.tv-mode header .brand-block { gap: 10px; }
+  body.tv-mode header .logo-mark { width: 32px; height: 32px; }
+  body.tv-mode .brand-text .gym { font-size: 18px; }
+  body.tv-mode .brand-text .gym-sub { font-size: 8px; }
+  body.tv-mode .brand-text .product { font-size: 14px; margin-top: 4px; }
+
+  body.tv-mode .grid { grid-template-columns: 1fr; gap: 0; }
+  body.tv-mode .stage-panel,
+  body.tv-mode .history,
+  body.tv-mode .progress,
+  body.tv-mode .dose-reveal-panel { display: none !important; }   /* !important needed because JS sets inline style.display on these */
+
+  body.tv-mode .workout-card {
+    position: static;
+    padding: 24px 36px;
+    max-width: none;
+    max-height: none;
+    overflow: visible;
+    margin: 0;
+    border-width: 3px;
+  }
+  body.tv-mode .wc-stamp { font-size: 12px; margin-bottom: 2px; }
+  body.tv-mode .wc-title {
+    font-size: 38px;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+  }
+  body.tv-mode .wc-actions { display: none; }
+
+  /* Two-column layout for the two halves on big screens */
+  body.tv-mode #wcBody {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+  }
+
+  /* Each half block becomes its own column */
+  body.tv-mode .wc-half-block {
+    min-width: 0;  /* enables grid items to shrink */
+  }
+  body.tv-mode .wc-half-header {
+    font-size: 16px;
+    margin-top: 0;
+    margin-bottom: 6px;
+  }
+  body.tv-mode .wc-half-format {
+    font-size: 36px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  body.tv-mode .wc-half-blurb {
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+  body.tv-mode .wc-section-header {
+    font-size: 12px;
+    margin-top: 12px;
+    margin-bottom: 4px;
+  }
+  /* The WOD lines themselves — the hero content */
+  body.tv-mode .wc-line {
+    font-size: 30px;
+    line-height: 1.2;
+    margin-bottom: 2px;
+  }
+  body.tv-mode .wc-line .num {
+    min-width: 90px;
+    font-weight: 700;
+  }
+  /* Strength scheme + instructions: smaller, readable but secondary */
+  body.tv-mode .wc-scheme {
+    margin-top: 10px;
+    padding: 10px 12px;
+  }
+  body.tv-mode .wc-scheme-label { font-size: 11px; margin-bottom: 5px; }
+  body.tv-mode .wc-scheme-line { font-size: 14px; line-height: 1.45; margin-bottom: 3px; }
+  body.tv-mode .wc-notes {
+    margin-top: 10px;
+    padding: 10px 12px;
+  }
+  body.tv-mode .wc-notes-label { font-size: 10px; margin-bottom: 5px; }
+  body.tv-mode .wc-notes-line { font-size: 14px; line-height: 1.45; padding-left: 12px; }
+
+  /* Tablet TV / narrow casts: stack the halves */
+  @media (max-width: 900px) {
+    body.tv-mode #wcBody { grid-template-columns: 1fr; gap: 16px; }
+    body.tv-mode .wc-title { font-size: 32px; }
+    body.tv-mode .wc-half-format { font-size: 30px; }
+    body.tv-mode .wc-line { font-size: 24px; }
+  }
+
+  /* ============ PROFILE PICKER ============ */
+  .profile-screen {
+    position: fixed; inset: 0; z-index: 300;
+    background: var(--bg);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 40px 20px; overflow-y: auto;
+  }
+  .profile-screen.hidden { display: none; }
+  .profile-header { text-align: center; margin-bottom: 36px; }
+  .profile-header .logo-mark { width: 64px; height: 64px; margin: 0 auto 14px; display: block; }
+  .profile-header .gym-name {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: clamp(22px, 4vw, 32px);
+    letter-spacing: 0.2em; color: var(--gold);
+  }
+  .profile-header .gym-sub {
+    font-size: 10px; letter-spacing: 0.3em; color: var(--gold-dim);
+    margin-top: 4px; font-weight: 600;
+  }
+  .profile-header .prompt {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(20px, 3vw, 28px);
+    letter-spacing: 0.1em; color: var(--ink); margin-top: 24px;
+  }
+  .coach-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px; width: 100%; max-width: 700px;
+  }
+  .coach-tile {
+    background: var(--bg-2); border: 2px solid var(--steel);
+    padding: 24px 16px; cursor: pointer; transition: all 0.2s;
+    text-align: center; position: relative;
+  }
+  .coach-tile:hover, .coach-tile:focus {
+    border-color: var(--gold); transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+  }
+  .coach-tile .avatar-lg {
+    width: 56px; height: 56px;
+    background: var(--gold); color: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 24px; margin: 0 auto 10px;
+  }
+  .coach-tile .name-lg {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px; letter-spacing: 0.05em; color: var(--ink);
+  }
+  .coach-tile.add { border-style: dashed; border-color: var(--gold-dim); color: var(--gold); }
+  .coach-tile.add:hover { border-color: var(--gold); border-style: dashed; }
+  .coach-tile.add .avatar-lg {
+    background: transparent; border: 2px dashed var(--gold);
+    color: var(--gold); font-size: 32px;
+  }
+  .coach-tile .delete-x {
+    position: absolute; top: 4px; right: 4px;
+    width: 24px; height: 24px;
+    background: transparent; border: 1px solid var(--steel);
+    color: var(--ink-dim); cursor: pointer;
+    font-size: 12px; display: none;
+    align-items: center; justify-content: center;
+  }
+  .coach-tile:hover .delete-x { display: flex; }
+  .coach-tile .delete-x:hover { color: var(--danger); border-color: var(--danger); }
+  .connection-status {
+    margin-top: 24px; font-size: 11px; color: var(--ink-dim);
+    letter-spacing: 0.15em; text-transform: uppercase; font-weight: 600;
+  }
+  .connection-status.online { color: var(--good); }
+  .connection-status.offline { color: var(--danger); }
+  .connection-status::before { content: '● '; }
+
+  /* ============ MODALS ============ */
+  .modal-bg {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.88);
+    z-index: 400; display: none; overflow-y: auto; padding: 20px;
+  }
+  .modal-bg.show { display: block; }
+  .modal {
+    max-width: 940px; margin: 0 auto;
+    background: var(--bg-2); border: 2px solid var(--gold); padding: 22px;
+    border-radius: 4px;
+  }
+  .modal-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 18px; border-bottom: 2px solid var(--steel); padding-bottom: 14px;
+    flex-wrap: wrap; gap: 10px;
+  }
+  .modal-title {
+    font-family: 'Archivo Black', sans-serif; font-size: 18px; letter-spacing: 0.15em;
+  }
+  .modal-close {
+    background: none; border: 1px solid var(--ink); color: var(--ink);
+    padding: 6px 14px; cursor: pointer;
+    font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.15em;
+  }
+  .modal-close:hover { background: var(--ink); color: var(--bg); }
+  .small-modal { max-width: 400px; text-align: center; }
+  .small-modal h3 {
+    font-family: 'Bebas Neue', sans-serif; font-size: 26px;
+    letter-spacing: 0.05em; margin-bottom: 8px; color: var(--gold);
+  }
+  .small-modal p { font-size: 12px; color: var(--ink-dim); margin-bottom: 18px; line-height: 1.5; }
+  .small-modal input {
+    width: 100%; padding: 12px;
+    background: var(--bg); color: var(--ink);
+    border: 1px solid var(--gold-dim);
+    font-family: 'Inter', sans-serif; font-size: 16px;
+    text-align: center; letter-spacing: 0.05em; margin-bottom: 14px;
+  }
+  .small-modal input:focus { outline: none; border-color: var(--gold); }
+  .small-modal-actions { display: flex; gap: 10px; }
+  .small-modal-actions button { flex: 1; }
+
+  .tab-bar {
+    display: flex; gap: 4px; margin-bottom: 18px;
+    border-bottom: 1px solid var(--steel); flex-wrap: wrap; overflow-x: auto;
+  }
+  .tab-btn {
+    background: transparent; color: var(--ink-dim); border: none;
+    padding: 10px 14px; cursor: pointer;
+    font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    border-bottom: 2px solid transparent; white-space: nowrap;
+  }
+  .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .info-box {
+    background: rgba(213,183,95,0.08); border-left: 3px solid var(--gold);
+    padding: 10px 14px; font-size: 11px; line-height: 1.6;
+    margin-bottom: 16px; color: var(--ink);
+  }
+  .info-box strong { color: var(--gold); }
+  .info-box code {
+    font-family: 'SF Mono', Menlo, monospace;
+    font-size: 11px; padding: 1px 5px;
+    background: var(--bg); border: 1px solid var(--steel);
+    color: var(--gold-warm); border-radius: 2px;
+  }
+  .info-box.half-a { background: rgba(76,201,240,0.06); border-color: var(--half-a); }
+  .info-box.half-a strong { color: var(--half-a); }
+  .info-box.half-b { background: rgba(247,127,0,0.06); border-color: var(--half-b); }
+  .info-box.half-b strong { color: var(--half-b); }
+
+  .editor-row {
+    display: grid;
+    grid-template-columns: 1fr 80px 80px 80px 36px;
+    gap: 6px; margin-bottom: 6px; align-items: center;
+  }
+  .editor-row.header {
+    font-family: 'Inter', sans-serif; font-weight: 700;
+    font-size: 9px; color: var(--ink-dim);
+    text-transform: uppercase; letter-spacing: 0.15em;
+    margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px solid var(--steel);
+  }
+  .editor-row input {
+    background: var(--bg); border: 1px solid var(--steel); color: var(--ink);
+    padding: 9px 10px; width: 100%;
+    font-family: 'Inter', sans-serif; font-size: 12px; border-radius: 2px;
+  }
+  .editor-row input:focus { outline: none; border-color: var(--gold); }
+  .del-btn {
+    background: transparent; color: var(--danger);
+    border: 1px solid var(--steel); padding: 7px 0; cursor: pointer; font-size: 14px;
+  }
+  .del-btn:hover { border-color: var(--danger); }
+  @media (max-width: 600px) {
+    /* Editor row on mobile: two-line layout.
+       Row 1: full-width name input on the left, narrow delete button on the right.
+       Row 2: three dose inputs (min / med / max) in equal columns under the name. */
+    .editor-row {
+      grid-template-columns: 1fr 1fr 1fr 40px;
+      grid-template-rows: auto auto; gap: 5px 6px;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .editor-row > input:nth-child(1) { grid-column: 1 / 4; grid-row: 1; }   /* name */
+    .editor-row > input:nth-child(2) { grid-column: 1; grid-row: 2; }       /* min */
+    .editor-row > input:nth-child(3) { grid-column: 2; grid-row: 2; }       /* med */
+    .editor-row > input:nth-child(4) { grid-column: 3; grid-row: 2; }       /* max */
+    .editor-row > .del-btn {
+      grid-column: 4; grid-row: 1;
+      padding: 0; font-size: 14px;
+      align-self: stretch;
+    }
+    .editor-row > span:last-child { display: none; }   /* hide the empty <span> placeholder on doses tab */
+    .editor-row.header { display: none; }
+  }
+
+  /* Format card with half indicator */
+  .formats-section-header {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 14px; letter-spacing: 0.22em;
+    margin: 20px 0 10px; padding-bottom: 6px;
+    border-bottom: 2px solid;
+  }
+  .formats-section-header.a { color: var(--half-a); border-color: var(--half-a); }
+  .formats-section-header.b { color: var(--half-b); border-color: var(--half-b); }
+  .formats-section-header:first-child { margin-top: 0; }
+
+  .format-card {
+    background: var(--bg); border: 1px solid var(--steel);
+    padding: 14px; margin-bottom: 12px;
+    border-left: 4px solid var(--steel);
+  }
+  .format-card.a { border-left-color: var(--half-a); }
+  .format-card.b { border-left-color: var(--half-b); }
+
+  .format-card-header {
+    display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap;
+  }
+  .format-card-header .include-check {
+    display: flex; gap: 6px; align-items: center;
+    font-size: 11px; color: var(--gold); font-weight: 700;
+    letter-spacing: 0.1em; padding: 5px 10px;
+    background: rgba(213,183,95,0.08); border: 1px solid var(--gold-dim); cursor: pointer;
+  }
+  .format-card-header .half-select {
+    background: var(--bg-2); border: 1px solid var(--steel); color: var(--ink);
+    padding: 5px 8px; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700;
+    cursor: pointer;
+  }
+  .format-card-header input[type=text] {
+    background: var(--bg-2); border: 1px solid var(--steel); color: var(--ink);
+    padding: 6px 10px; font-family: 'Inter', sans-serif; font-size: 12px;
+  }
+  .format-section-editor {
+    margin-bottom: 10px; padding: 10px;
+    background: var(--bg-2); border-left: 3px solid var(--gold);
+  }
+  .format-section-editor-header {
+    display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap;
+  }
+  .format-section-editor-header input[type=text] {
+    background: var(--bg); border: 1px solid var(--steel); color: var(--ink);
+    padding: 5px 8px; font-family: 'Inter', sans-serif; font-size: 11px;
+    flex: 1; min-width: 100px;
+  }
+  .format-section-editor-header input[type=number] {
+    background: var(--bg); border: 1px solid var(--steel); color: var(--ink);
+    padding: 5px 8px; font-family: 'Inter', sans-serif; font-size: 11px; width: 56px;
+  }
+  .checkbox-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 4px 10px; margin-top: 8px;
+  }
+  .checkbox-grid label {
+    font-size: 11px; display: flex; gap: 6px; align-items: center; cursor: pointer;
+    padding: 3px; user-select: none;
+  }
+  .checkbox-grid label:hover { color: var(--gold); }
+
+  .modal-actions {
+    display: flex; gap: 10px; margin-top: 18px; padding-top: 14px;
+    border-top: 1px solid var(--steel); flex-wrap: wrap;
+  }
+  .modal-actions button {
+    padding: 10px 16px; background: var(--gold); color: var(--bg);
+    border: none; cursor: pointer;
+    font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: 0.15em;
+  }
+  .modal-actions button:hover { background: var(--gold-warm); }
+  .modal-actions button.secondary {
+    background: transparent; color: var(--ink); border: 1px solid var(--ink);
+  }
+  .modal-actions button.secondary:hover { background: var(--ink); color: var(--bg); }
+
+  .add-btn {
+    background: transparent; color: var(--gold);
+    border: 1px dashed var(--gold); padding: 8px 14px;
+    font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    cursor: pointer; margin: 4px 8px 4px 0;
+  }
+  .add-btn:hover { background: var(--gold); color: var(--bg); }
+  .add-btn.a { color: var(--half-a); border-color: var(--half-a); }
+  .add-btn.a:hover { background: var(--half-a); color: var(--bg); }
+  .add-btn.b { color: var(--half-b); border-color: var(--half-b); }
+  .add-btn.b:hover { background: var(--half-b); color: var(--bg); }
+
+  /* Reset bar at the bottom of the Formats tab — splits "add" actions
+     from "reset" actions, and visually distinguishes personal vs gym-wide resets. */
+  .reset-bar {
+    display: flex; gap: 16px; flex-wrap: wrap; align-items: center;
+    margin-top: 18px; padding-top: 14px;
+    border-top: 1px solid var(--steel);
+  }
+  .reset-bar-left, .reset-bar-right {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .reset-bar-right { margin-left: auto; }
+  /* Personal reset — yellow, friendlier */
+  .add-btn.reset-mine { color: var(--gold-warm); border-color: var(--gold-warm); border-style: solid; }
+  .add-btn.reset-mine:hover { background: var(--gold-warm); color: var(--bg); }
+  /* Gym-wide reset — red, danger */
+  .add-btn.reset-gym { color: var(--danger); border-color: var(--danger); border-style: solid; }
+  .add-btn.reset-gym:hover { background: var(--danger); color: var(--ink); }
+
+  .loader {
+    border: 2px solid var(--steel); border-top-color: var(--gold);
+    border-radius: 50%; width: 24px; height: 24px;
+    animation: spin 0.8s linear infinite; display: inline-block;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- ============ PROFILE PICKER ============ -->
+<div class="profile-screen" id="profileScreen">
+  <div class="profile-header">
+    <svg class="logo-mark" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <rect x="20" y="22" width="60" height="11" fill="#d5b75f"/>
+      <rect x="20" y="44" width="46" height="11" fill="#d5b75f"/>
+      <rect x="20" y="66" width="60" height="11" fill="#d5b75f"/>
+    </svg>
+    <div class="gym-name">ELEMENT</div>
+    <div class="gym-sub">ATHLETICS</div>
+    <div class="prompt">SELECT YOUR COACH</div>
+  </div>
+  <div class="coach-grid" id="coachGrid">
+    <div style="grid-column:1/-1;text-align:center;color:var(--ink-dim);"><span class="loader"></span><br><br>Loading coaches...</div>
+  </div>
+  <div class="connection-status" id="connectionStatus">Connecting...</div>
+</div>
+
+<!-- ============ MAIN APP ============ -->
+<main id="mainApp" style="display:none;">
+  <header>
+    <div class="brand-block">
+      <svg class="logo-mark" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="22" width="60" height="11" fill="#d5b75f"/>
+        <rect x="20" y="44" width="46" height="11" fill="#d5b75f"/>
+        <rect x="20" y="66" width="60" height="11" fill="#d5b75f"/>
+      </svg>
+      <div class="brand-text">
+        <span class="gym">ELEMENT</span>
+        <span class="gym-sub">ATHLETICS</span>
+        <span class="product">Sunday Spinner</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="coach-pill" onclick="switchCoach()" title="Switch coach">
+        <div class="avatar" id="coachAvatar">?</div>
+        <div class="name"><small>Coach</small><span id="coachName">—</span></div>
+      </div>
+      <button class="icon-btn" onclick="openSettings()">⚙ Edit</button>
+      <button class="icon-btn" onclick="toggleTV()">📺 TV</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div>
+      <!-- ============ STAGE 1: PART A FORMAT ============ -->
+      <div class="stage-panel half-a" id="formatPanelA">
+        <div class="stage-header">
+          <div>
+            <div class="stage-label">Stage 01</div>
+            <div class="stage-title">PART A · FORMAT</div>
+          </div>
+          <div class="stage-half-pill a">FIRST HALF</div>
+        </div>
+        <div class="stage-context" id="formatContextA">Strength, skill, or technique work — the warm-up to today's metcon.</div>
+        <div class="scroller-wrap">
+          <div class="scroller-indicator a"></div>
+          <div class="scroller-track" id="formatScrollerA"></div>
+        </div>
+        <div class="result">
+          <div class="result-label">Part A format</div>
+          <div class="result-value empty" id="formatResultA">— spin to begin —</div>
+        </div>
+        <div class="btn-row">
+          <button class="spin-btn half-a" id="formatSpinBtnA" onclick="spinFormatA()">SPIN FORMAT</button>
+          <button class="spin-btn secondary" onclick="spinFormatA(true)">↻ re-spin</button>
+        </div>
+      </div>
+
+      <!-- ============ STAGE 2: PART A MOVEMENTS ============ -->
+      <div class="stage-panel half-a dim" id="movementPanelA" style="display:none;">
+        <div class="stage-header">
+          <div>
+            <div class="stage-label">Stage 02</div>
+            <div class="stage-title">PART A · MOVEMENTS</div>
+          </div>
+          <div class="stage-half-pill a">FIRST HALF</div>
+        </div>
+        <div class="stage-context" id="movementContextA">— complete stage 01 —</div>
+        <div class="scroller-wrap">
+          <div class="scroller-indicator a"></div>
+          <div class="scroller-track" id="movementScrollerA"></div>
+        </div>
+        <div class="result">
+          <div class="result-label">Movement</div>
+          <div class="result-value empty" id="movementResultA">—</div>
+        </div>
+        <div class="btn-row">
+          <button class="spin-btn half-a" id="movementSpinBtnA" onclick="spinMovementA()" disabled>SPIN MOVEMENT</button>
+          <button class="spin-btn secondary" onclick="spinMovementA(true)">↻ re-spin</button>
+        </div>
+      </div>
+
+      <!-- ============ STAGE 3: PART B FORMAT ============ -->
+      <div class="stage-panel half-b dim" id="formatPanelB" style="display:none;">
+        <div class="stage-header">
+          <div>
+            <div class="stage-label">Stage 03</div>
+            <div class="stage-title">PART B · FORMAT</div>
+          </div>
+          <div class="stage-half-pill b">SECOND HALF</div>
+        </div>
+        <div class="stage-context" id="formatContextB">The metcon — your big finishing piece.</div>
+        <div class="scroller-wrap">
+          <div class="scroller-indicator b"></div>
+          <div class="scroller-track" id="formatScrollerB"></div>
+        </div>
+        <div class="result">
+          <div class="result-label">Part B format</div>
+          <div class="result-value empty" id="formatResultB">— complete Part A first —</div>
+        </div>
+        <div class="btn-row">
+          <button class="spin-btn half-b" id="formatSpinBtnB" onclick="spinFormatB()" disabled>SPIN FORMAT</button>
+          <button class="spin-btn secondary" onclick="spinFormatB(true)">↻ re-spin</button>
+        </div>
+      </div>
+
+      <!-- ============ STAGE 4: PART B MOVEMENTS ============ -->
+      <div class="stage-panel half-b dim" id="movementPanelB" style="display:none;">
+        <div class="stage-header">
+          <div>
+            <div class="stage-label">Stage 04</div>
+            <div class="stage-title">PART B · MOVEMENTS</div>
+          </div>
+          <div class="stage-half-pill b">SECOND HALF</div>
+        </div>
+        <div class="stage-context" id="movementContextB">— complete stage 03 —</div>
+        <div class="scroller-wrap">
+          <div class="scroller-indicator b"></div>
+          <div class="scroller-track" id="movementScrollerB"></div>
+        </div>
+        <div class="result">
+          <div class="result-label">Movement</div>
+          <div class="result-value empty" id="movementResultB">—</div>
+        </div>
+        <div class="btn-row">
+          <button class="spin-btn half-b" id="movementSpinBtnB" onclick="spinMovementB()" disabled>SPIN MOVEMENT</button>
+          <button class="spin-btn secondary" onclick="spinMovementB(true)">↻ re-spin</button>
+        </div>
+      </div>
+
+      <!-- ============ STAGE 5: FINAL DOSE REVEAL ============ -->
+      <div class="dose-reveal-panel" id="doseRevealPanel" style="display:none;">
+        <div class="reveal-label">FINAL REVEAL</div>
+        <div class="reveal-title">SPIN THE DOSES</div>
+        <div class="reveal-sub">All <span id="doseRevealCount">0</span> movements locked in across both halves. One button reveals every dose and difficulty.</div>
+        <button class="spin-btn big" id="doseRevealBtn" onclick="spinAllDoses()">🎲 SPIN ALL DOSES</button>
+      </div>
+
+      <!-- ============ PROGRESS PANEL ============ -->
+      <div class="progress" id="progressPanel" style="display:none;">
+        <div class="progress-header">
+          <div class="progress-title">↳ WORKOUT BUILD</div>
+          <div class="progress-count"><span id="progressFilled">0</span>/<span id="progressTotal">0</span></div>
+        </div>
+        <div class="progress-bar"><div class="progress-bar-fill" id="progressBarFill" style="width:0%;"></div></div>
+        <div id="slotGrid"></div>
+      </div>
+
+      <div class="history">
+        <div class="history-header">
+          <h2>↳ MY PAST SPINS</h2>
+          <button class="clear" onclick="clearHistory()">clear all</button>
+        </div>
+        <div class="history-list" id="historyList"></div>
+      </div>
+    </div>
+
+    <aside>
+      <div class="workout-card empty" id="workoutCard" onclick="toggleWorkoutCard(event)">
+        <div class="wc-stamp">TODAY'S WOD</div>
+        <div class="wc-title" id="wcTitle">AWAITING SPIN</div>
+        <div id="wcBody">
+          <div class="wc-empty-msg">Spin Part A to begin building today's session.</div>
+        </div>
+        <div class="wc-actions" id="wcActions" style="display:none;">
+          <button onclick="copyWorkout()">COPY</button>
+          <button onclick="shareWorkout()">SHARE</button>
+          <button onclick="saveWorkout()">SAVE</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+<button class="tv-exit" onclick="toggleTV()" title="Exit TV mode (Esc)" aria-label="Exit TV mode">✕ EXIT TV</button>
+
+<!-- ============ SETTINGS MODAL ============ -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">⚙ EDIT CONFIG</div>
+      <button class="modal-close" onclick="closeSettings()">CLOSE ×</button>
+    </div>
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="movements" onclick="switchTab(event,'movements')">Movements</button>
+      <button class="tab-btn" data-tab="doses" onclick="switchTab(event,'doses')">My Doses</button>
+      <button class="tab-btn" data-tab="formats" onclick="switchTab(event,'formats')">Formats</button>
+    </div>
+
+    <div class="tab-panel active" id="tab-movements">
+      <div class="info-box"><strong>SHARED LIBRARY</strong> — these movements are visible to all coaches. Adding affects everyone freely; deleting requires the gym passcode (<code>0000</code>) to prevent accidents.</div>
+      <div class="editor-row header">
+        <div>Movement name</div>
+        <div>Default min</div>
+        <div>Default med</div>
+        <div>Default max</div>
+        <div></div>
+      </div>
+      <div id="movementsEditor"></div>
+      <button class="add-btn" onclick="addMovement()">+ ADD MOVEMENT</button>
+    </div>
+
+    <div class="tab-panel" id="tab-doses">
+      <div class="info-box"><strong>YOUR PERSONAL DOSES</strong> — only you see these. Set min/med/max for each movement how you program it.</div>
+      <div class="editor-row header">
+        <div>Movement</div>
+        <div>Min</div>
+        <div>Med</div>
+        <div>Max</div>
+        <div></div>
+      </div>
+      <div id="dosesEditor"></div>
+    </div>
+
+    <div class="tab-panel" id="tab-formats">
+      <div class="info-box"><strong>SHARED FORMATS</strong> — visible to all coaches. Tick "In My Wheel" to include a format in your own spin (this is personal — won't affect anyone else). Editing or deleting a format affects everyone; deletes require the gym passcode (<code>0000</code>).</div>
+      <div id="formatsEditor"></div>
+      <div class="reset-bar">
+        <div class="reset-bar-left">
+          <button class="add-btn a" onclick="addFormat('A')">+ ADD PART A FORMAT</button>
+          <button class="add-btn b" onclick="addFormat('B')">+ ADD PART B FORMAT</button>
+        </div>
+        <div class="reset-bar-right">
+          <button class="add-btn reset-mine" onclick="resetFormatsToDefaults()" title="Resets your personal doses + wheel preferences only">⟲ RESET MY SETTINGS</button>
+          <button class="add-btn reset-gym" onclick="resetGymFormatsToDefaults()" title="Wipes the shared formats list for the whole gym — passcode required">⚠ RESET SHARED FORMATS</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button onclick="saveSettings()">💾 SAVE CHANGES</button>
+      <button class="secondary" onclick="closeSettings()">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SMALL MODAL ============ -->
+<div class="modal-bg" id="smallModalBg">
+  <div class="modal small-modal">
+    <h3 id="smModalTitle">Title</h3>
+    <p id="smModalBody">Body text</p>
+    <input type="text" id="smModalInput" />
+    <div class="small-modal-actions">
+      <button class="spin-btn secondary" style="margin:0;" onclick="closeSmallModal()">CANCEL</button>
+      <button class="spin-btn" style="margin:0;" onclick="confirmSmallModal()">CONFIRM</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// SUPABASE CONFIG — REPLACE WITH YOUR OWN
+// ============================================================
+const SUPABASE_URL = 'https://kglcdyvwwevhwsamhmwp.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtnbGNkeXZ3d2V2aHdzYW1obXdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNDA5NDEsImV4cCI6MjA5NDcxNjk0MX0.9LQGzs-rqABHejd0C8lbj4y02EeR-8iJgdKK026unG4';
+
+
+// ============================================================
+// DEFAULT DATA
+// ============================================================
+const DEFAULT_MOVEMENTS = [
+  { name: 'Run',             default_min: '200m',   default_med: '400m',   default_max: '800m' },
+  { name: 'Row (cal)',       default_min: '10 cal', default_med: '15 cal', default_max: '21 cal' },
+  { name: 'Bike Erg (cal)',  default_min: '10 cal', default_med: '15 cal', default_max: '21 cal' },
+  { name: 'Ski Erg (cal)',   default_min: '10 cal', default_med: '12 cal', default_max: '18 cal' },
+  { name: 'Burpees',         default_min: '8',      default_med: '15',     default_max: '25' },
+  { name: 'Snatch',          default_min: '3',      default_med: '5',      default_max: '7' },
+  { name: 'Power Snatch',    default_min: '3',      default_med: '5',      default_max: '7' },
+  { name: 'Clean',           default_min: '3',      default_med: '5',      default_max: '7' },
+  { name: 'Power Clean',     default_min: '3',      default_med: '5',      default_max: '10' },
+  { name: 'Clean & Jerk',    default_min: '2',      default_med: '3',      default_max: '5' },
+  { name: 'Deadlift',        default_min: '5',      default_med: '8',      default_max: '12' },
+  { name: 'Front Squat',     default_min: '5',      default_med: '8',      default_max: '10' },
+  { name: 'Back Squat',      default_min: '5',      default_med: '8',      default_max: '10' },
+  { name: 'Bench Press',     default_min: '5',      default_med: '8',      default_max: '12' },
+  { name: 'Strict Press',    default_min: '5',      default_med: '8',      default_max: '10' },
+  { name: 'Thruster',        default_min: '6',      default_med: '10',     default_max: '15' },
+  { name: 'Wall Balls',      default_min: '12',     default_med: '20',     default_max: '30' },
+  { name: 'Box Jumps',       default_min: '8',      default_med: '12',     default_max: '20' },
+  { name: 'DB Snatch',       default_min: '8',      default_med: '14',     default_max: '20' },
+  { name: 'KB Swings',       default_min: '12',     default_med: '20',     default_max: '30' },
+  { name: 'DB Lunges',       default_min: '10',     default_med: '16',     default_max: '24' },
+  { name: 'Walking Lunges',  default_min: '20m',    default_med: '30m',    default_max: '40m' },
+  { name: 'Pull-ups',        default_min: '5',      default_med: '10',     default_max: '15' },
+  { name: 'Strict Pull-ups', default_min: '3',      default_med: '6',      default_max: '10' },
+  { name: 'Toes-to-Bar',     default_min: '5',      default_med: '10',     default_max: '15' },
+  { name: 'HSPU',            default_min: '3',      default_med: '6',      default_max: '10' },
+  { name: 'Muscle-ups',      default_min: '2',      default_med: '4',      default_max: '6' },
+  { name: 'Pistols',         default_min: '6',      default_med: '10',     default_max: '14' }
+];
+
+// Movement-specific strength prescriptions for STRENGTH format.
+// Maps movement name to its rep scheme + coaching notes. Used by the STRENGTH format
+// to render a tailored instructions block based on which movement spun.
+const STRENGTH_SCHEMES = {
+  'Bench Press':   { target: 'Build to 80% of your 1RM for 5×5', warmup: 'Bar warm-up, then 5 reps @ 50%, 5 @ 60%, 3 @ 70%, then start working sets at 75% and add weight each set to 80%.', rest: 'Rest 2–3 min between working sets.', cues: 'Feet planted, shoulder blades pinched, full chest contact, no bounce off the chest.' },
+  'Back Squat':    { target: 'Build to 80% of your 1RM for 5×5', warmup: '5 reps @ 50%, 5 @ 60%, 3 @ 70%, then working sets at 75% → 80%.', rest: 'Rest 3 min between working sets.', cues: 'Big breath in at the top, brace your core, hips below parallel, drive knees out on the way up.' },
+  'Front Squat':   { target: 'Build to 80% of your 1RM for 5×3', warmup: '5 reps @ 50%, 3 @ 60%, 3 @ 70%, 3 @ 75%, then working sets at 80%.', rest: 'Rest 2–3 min between working sets.', cues: 'Elbows high, chest tall, vertical torso. If your elbows drop, the bar rolls.' },
+  'Deadlift':      { target: 'Build to 80% of your 1RM for 5×3', warmup: '5 @ 50%, 3 @ 60%, 3 @ 70%, 1 @ 75%, then working sets at 80%.', rest: 'Rest 3 min between working sets.', cues: 'Bar over mid-foot, lats tight (think “protect your armpits”), drive the floor away. Reset every rep — no touch-and-go.' },
+  'Strict Press':  { target: 'Build to 75% of your 1RM for 5×5', warmup: 'Empty bar, 5 @ 50%, 5 @ 60%, 3 @ 70%, then working sets at 75%.', rest: 'Rest 2 min between working sets.', cues: 'Squeeze glutes, ribs down, bar finishes overhead with your biceps next to your ears.' },
+  'Snatch':        { target: 'EMOM 10 minutes: 2 reps every minute @ 70% of your 1RM', warmup: 'Bar work + hip openers, then build: 2 @ 50%, 2 @ 60%, then start the EMOM at 70%.', rest: 'Rest is whatever\'s left of each minute.', cues: 'Stay over the bar, fast elbows, punch yourself into the bottom of the overhead squat. Bar speed over heavy weight.' },
+  'Power Snatch':  { target: 'EMOM 10 minutes: 2 reps every minute @ 70% of your 1RM', warmup: '2 @ 50%, 2 @ 60%, then start the EMOM at 70%.', rest: 'Rest is whatever\'s left of each minute.', cues: 'Catch above parallel, feet land where they started, finish tall and locked out.' },
+  'Clean':         { target: 'EMOM 10 minutes: 2 reps every minute @ 70% of your 1RM', warmup: '2 @ 50%, 2 @ 60%, then start the EMOM at 70%.', rest: 'Rest is whatever\'s left of each minute.', cues: 'Patient off the floor, explosive at the hip, fast elbows around to the rack.' },
+  'Power Clean':   { target: 'EMOM 10 minutes: 2 reps every minute @ 70% of your 1RM', warmup: '2 @ 50%, 2 @ 60%, then start the EMOM at 70%.', rest: 'Rest is whatever\'s left of each minute.', cues: 'Catch above parallel, elbows whip through to the rack. Drop the bar and reset every rep.' },
+  'Clean & Jerk':  { target: 'Build to a heavy single (not necessarily a 1RM PR)', warmup: '2 @ 50%, 2 @ 60%, 1 @ 70%, 1 @ 80%, then singles at 85%+. Stop when form breaks.', rest: 'Rest 90s–2 min between heavy singles.', cues: 'Hit your positions. If you miss the same way twice, drop 5–10kg and rebuild — don\'t grind ugly reps.' }
+};
+
+// Strength/skill movement pools for Part A
+const STRENGTH_POOL = ['Back Squat','Front Squat','Deadlift','Bench Press','Strict Press','Snatch','Power Snatch','Clean','Power Clean','Clean & Jerk'];
+
+// Metcon movement pool for Part B
+const METCON_POOL = ['Wall Balls','Box Jumps','DB Snatch','KB Swings','Thruster','Pull-ups','Toes-to-Bar','Row (cal)','Bike Erg (cal)','Burpees','Power Clean','DB Lunges','Walking Lunges','Run','HSPU','Ski Erg (cal)'];
+
+// Continuous pool — low-skill movements suited to steady-state work
+const CONTINUOUS_POOL = ['Run','Row (cal)','Bike Erg (cal)','Ski Erg (cal)','KB Swings','Wall Balls','DB Snatch','Walking Lunges','Burpees','DB Lunges'];
+
+const DEFAULT_FORMATS = [
+  // ===== PART A =====
+  {
+    half: 'A',
+    code: 'STR',
+    name: 'STRENGTH',
+    blurb: '20 min — one main lift, scheme adapts to the movement',
+    instructions: [
+      'You\'ll have 20 minutes for one main lift — the prescription below tells you exactly how to load it.',
+      'Warm up to your first working set with the progressive jumps shown. Don\'t skip the lighter sets — they prime the pattern.',
+      'If you don\'t know your 1RM: pick a weight where the last rep of your working set feels like a 7/10 effort. Add weight next session if all reps moved well.',
+      'Quality over quantity. Stop a set if your form breaks down — log what you hit and move on.'
+    ],
+    sections: [
+      { label: 'Main Lift', slots: 1, pool: STRENGTH_POOL }
+    ]
+  },
+  {
+    half: 'A',
+    code: 'YGIG',
+    name: 'YOU GO I GO',
+    blurb: '20 min partner workout — 4 movements, you and your partner alternate full rounds',
+    instructions: [
+      'Pair up with someone of similar fitness.',
+      'You complete all 4 movements in order (one round), then it\'s your partner\'s turn while you rest. Keep alternating for 20 minutes.',
+      'Your score is total rounds completed between the two of you.',
+      'Pick reps and loads so each round takes you 90–120 seconds. If a round takes you more than 2 min, scale it down for the next one.',
+      'Push hard — your rest is whatever your partner needs to finish their round.'
+    ],
+    sections: [
+      { label: 'Movement Couplet (4 moves)', slots: 4, pool: METCON_POOL }
+    ]
+  },
+
+  // ===== PART B =====
+  {
+    half: 'B',
+    code: 'CONT',
+    name: 'CONTINUOUS',
+    blurb: '25–30 min steady aerobic — keep moving the whole time',
+    instructions: [
+      'This is steady — NOT a race. You should be able to hold a short conversation throughout.',
+      'Move through the 3 movements continuously for 25–30 minutes. No prescribed rounds — just keep going.',
+      'Aim for nose-breathing pace. If you\'re mouth-breathing hard, slow down.',
+      'Your score is total rounds + reps (or total distance/calories if it\'s a single machine).',
+      'If you need to rest more than 10 seconds between movements, the load is too heavy — drop it.'
+    ],
+    sections: [
+      { label: 'Continuous Triplet', slots: 3, pool: CONTINUOUS_POOL }
+    ]
+  },
+  {
+    half: 'B',
+    code: 'AMRAP',
+    name: 'AMRAP 20',
+    blurb: 'As Many Rounds As Possible in 20 minutes — 4 movements',
+    instructions: [
+      'Complete the 4 movements in order, then repeat. Score is total rounds + reps in your final partial round.',
+      'Start slow. The first 3 minutes should feel almost too easy — if you\'re gassed by minute 5, you went out too hard.',
+      'Break your reps before you have to. 15 wall balls feels better as 8+7 than as a failed unbroken set.',
+      'Aim for 6–10 rounds total. Try to make the second half faster than the first.',
+      'If you can\'t do the prescribed reps unbroken on your first round, scale the load or rep count down before you start.'
+    ],
+    sections: [
+      { label: 'AMRAP Circuit', slots: 4, pool: METCON_POOL }
+    ]
+  },
+  {
+    half: 'B',
+    code: 'CHIP',
+    name: 'CHIPPER',
+    blurb: 'For time — descending reps, cap 25 min',
+    instructions: [
+      'Chip through each movement in order before moving to the next. Reps descend as you go (e.g. 50-40-30-20-10).',
+      'For time: your score is how long it takes you to finish, or total reps if you hit the 25-minute cap.',
+      'Break the big sets early. The first movement has the most reps — don\'t go unbroken or you\'ll wreck yourself for everything after.',
+      'Pace at about 75–80% effort. Chippers reward consistency. Sprint the last movement, not the first.',
+      'Pick loads light enough that you could do 10–15 reps unbroken when fresh.'
+    ],
+    sections: [
+      { label: 'Chipper Sequence (descending reps)', slots: 5, pool: METCON_POOL }
+    ]
+  }
+];
+
+const DEFAULT_COACHES = ['Katelin', 'Jose'];
+const DELETE_PASSCODE = '0000';
+
+// ============================================================
+// SUPABASE / LOCALSTORAGE LAYER
+// ============================================================
+let USE_SUPABASE = SUPABASE_URL.startsWith('http') && SUPABASE_KEY.length > 20;
+let coaches = [], movements = [], formats = [];
+let myDoses = {}, myExcludedA = [], myExcludedB = [], myHistory = [];
+let currentCoach = null;
+
+async function sbRequest(method, path, body) {
+  const url = `${SUPABASE_URL}/rest/v1/${path}`;
+  const headers = {
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${SUPABASE_KEY}`,
+    'Content-Type': 'application/json',
+    'Prefer': method === 'POST' ? 'return=representation' : 'return=minimal'
+  };
+  const opts = { method, headers };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(url, opts);
+  if (!r.ok) { const text = await r.text(); throw new Error(`Supabase ${method} ${path}: ${r.status} ${text}`); }
+  if (method === 'DELETE' || method === 'PATCH') return null;
+  return await r.json();
+}
+
+async function loadAllData() {
+  if (USE_SUPABASE) {
+    try {
+      const status = document.getElementById('connectionStatus');
+      status.textContent = 'Connecting to cloud...';
+      coaches = await sbRequest('GET', 'coaches?select=*&order=name');
+      movements = await sbRequest('GET', 'movements?select=*&order=name');
+      formats = await sbRequest('GET', 'formats?select=*&order=half,code');
+      if (coaches.length === 0) {
+        for (const name of DEFAULT_COACHES) await sbRequest('POST', 'coaches', { name });
+        coaches = await sbRequest('GET', 'coaches?select=*&order=name');
+      }
+      if (movements.length === 0) {
+        await sbRequest('POST', 'movements', DEFAULT_MOVEMENTS);
+        movements = await sbRequest('GET', 'movements?select=*&order=name');
+      }
+      if (formats.length === 0) {
+        await sbRequest('POST', 'formats', DEFAULT_FORMATS.map(f => ({ ...f })));
+        formats = await sbRequest('GET', 'formats?select=*&order=half,code');
+      }
+      // Backfill: if any format is missing the half field, default to B
+      formats.forEach(f => { if (!f.half) f.half = 'B'; });
+
+      status.textContent = 'CLOUD CONNECTED';
+      status.className = 'connection-status online';
+    } catch (e) {
+      console.error('Supabase error:', e);
+      const status = document.getElementById('connectionStatus');
+      status.textContent = 'OFFLINE — using local storage';
+      status.className = 'connection-status offline';
+      USE_SUPABASE = false;
+      loadFromLocalStorage();
+    }
+  } else {
+    const status = document.getElementById('connectionStatus');
+    status.textContent = 'LOCAL MODE — set up Supabase to sync';
+    status.className = 'connection-status offline';
+    loadFromLocalStorage();
+  }
+}
+
+function loadFromLocalStorage() {
+  try {
+    const c = localStorage.getItem('ss_coaches');
+    coaches = c ? JSON.parse(c) : DEFAULT_COACHES.map((name, i) => ({ id: i+1, name }));
+    const m = localStorage.getItem('ss_movements');
+    movements = m ? JSON.parse(m) : DEFAULT_MOVEMENTS.map((v, i) => ({ id: i+1, ...v }));
+    const f = localStorage.getItem('ss_formats');
+    formats = f ? JSON.parse(f) : DEFAULT_FORMATS.map((v, i) => ({ id: i+1, ...v }));
+    formats.forEach(fmt => { if (!fmt.half) fmt.half = 'B'; });
+    persistLocal();
+  } catch(e) {
+    coaches = DEFAULT_COACHES.map((name, i) => ({ id: i+1, name }));
+    movements = DEFAULT_MOVEMENTS.map((v, i) => ({ id: i+1, ...v }));
+    formats = DEFAULT_FORMATS.map((v, i) => ({ id: i+1, ...v }));
+  }
+}
+function persistLocal() {
+  try {
+    localStorage.setItem('ss_coaches', JSON.stringify(coaches));
+    localStorage.setItem('ss_movements', JSON.stringify(movements));
+    localStorage.setItem('ss_formats', JSON.stringify(formats));
+  } catch(e) {}
+}
+
+async function loadCoachData(coachId) {
+  if (USE_SUPABASE) {
+    try {
+      const doses = await sbRequest('GET', `coach_doses?coach_id=eq.${coachId}&select=*`);
+      myDoses = {};
+      doses.forEach(d => { myDoses[d.movement_name] = { min: d.min, med: d.med, max: d.max }; });
+      const prefs = await sbRequest('GET', `coach_prefs?coach_id=eq.${coachId}&select=*`);
+      if (prefs.length > 0) {
+        myExcludedA = prefs[0].excluded_a_ids || [];
+        myExcludedB = prefs[0].excluded_b_ids || [];
+      } else { myExcludedA = []; myExcludedB = []; }
+      const hist = await sbRequest('GET', `coach_history?coach_id=eq.${coachId}&select=*&order=created_at.desc&limit=50`);
+      myHistory = hist.map(h => ({ id: h.id, date: h.created_at, formatA: h.format_a, formatB: h.format_b, slots: h.slots_snapshot }));
+    } catch(e) { console.error(e); myDoses = {}; myExcludedA = []; myExcludedB = []; myHistory = []; }
+  } else {
+    try {
+      const d = localStorage.getItem(`ss_doses_${coachId}`);
+      myDoses = d ? JSON.parse(d) : {};
+      const ea = localStorage.getItem(`ss_excluded_a_${coachId}`);
+      myExcludedA = ea ? JSON.parse(ea) : [];
+      const eb = localStorage.getItem(`ss_excluded_b_${coachId}`);
+      myExcludedB = eb ? JSON.parse(eb) : [];
+      const h = localStorage.getItem(`ss_history_${coachId}`);
+      myHistory = h ? JSON.parse(h) : [];
+    } catch(e) { myDoses = {}; myExcludedA = []; myExcludedB = []; myHistory = []; }
+  }
+}
+
+async function saveCoachDoses() {
+  if (USE_SUPABASE) {
+    try {
+      await sbRequest('DELETE', `coach_doses?coach_id=eq.${currentCoach.id}`);
+      const rows = Object.entries(myDoses).map(([name, d]) => ({
+        coach_id: currentCoach.id, movement_name: name, min: d.min, med: d.med, max: d.max
+      }));
+      if (rows.length > 0) await sbRequest('POST', 'coach_doses', rows);
+    } catch(e) { console.error(e); showToast('SAVE FAILED', true); }
+  } else {
+    try { localStorage.setItem(`ss_doses_${currentCoach.id}`, JSON.stringify(myDoses)); } catch(e) {}
+  }
+}
+
+async function saveCoachPrefs() {
+  if (USE_SUPABASE) {
+    try {
+      await sbRequest('DELETE', `coach_prefs?coach_id=eq.${currentCoach.id}`);
+      await sbRequest('POST', 'coach_prefs', [{
+        coach_id: currentCoach.id,
+        excluded_a_ids: myExcludedA,
+        excluded_b_ids: myExcludedB
+      }]);
+    } catch(e) { console.error(e); }
+  } else {
+    try {
+      localStorage.setItem(`ss_excluded_a_${currentCoach.id}`, JSON.stringify(myExcludedA));
+      localStorage.setItem(`ss_excluded_b_${currentCoach.id}`, JSON.stringify(myExcludedB));
+    } catch(e) {}
+  }
+}
+
+async function saveCoachHistoryEntry(entry) {
+  if (USE_SUPABASE) {
+    try {
+      await sbRequest('POST', 'coach_history', [{
+        coach_id: currentCoach.id,
+        format_a: entry.formatA,
+        format_b: entry.formatB,
+        slots_snapshot: entry.slots
+      }]);
+    } catch(e) { console.error(e); }
+  } else {
+    try { localStorage.setItem(`ss_history_${currentCoach.id}`, JSON.stringify(myHistory)); } catch(e) {}
+  }
+}
+
+async function clearCoachHistory() {
+  if (USE_SUPABASE) { try { await sbRequest('DELETE', `coach_history?coach_id=eq.${currentCoach.id}`); } catch(e) {} }
+  else { try { localStorage.removeItem(`ss_history_${currentCoach.id}`); } catch(e) {} }
+  myHistory = [];
+}
+
+// ============================================================
+// PROFILE PICKER
+// ============================================================
+function renderCoachGrid() {
+  const grid = document.getElementById('coachGrid');
+  grid.innerHTML = '';
+  coaches.forEach(c => {
+    const initials = c.name.split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    const tile = document.createElement('div');
+    tile.className = 'coach-tile';
+    tile.innerHTML = `
+      <button class="delete-x" onclick="event.stopPropagation();deleteCoach(${c.id},'${escapeAttr(c.name)}')">×</button>
+      <div class="avatar-lg">${initials}</div>
+      <div class="name-lg">${escapeHtml(c.name)}</div>
+    `;
+    tile.onclick = () => selectCoach(c);
+    grid.appendChild(tile);
+  });
+  const addTile = document.createElement('div');
+  addTile.className = 'coach-tile add';
+  addTile.innerHTML = `<div class="avatar-lg">+</div><div class="name-lg">New Coach</div>`;
+  addTile.onclick = addCoachPrompt;
+  grid.appendChild(addTile);
+}
+
+async function selectCoach(coach) {
+  currentCoach = coach;
+  await loadCoachData(coach.id);
+  movements.forEach(m => {
+    if (!myDoses[m.name]) myDoses[m.name] = { min: m.default_min, med: m.default_med, max: m.default_max };
+  });
+  document.getElementById('profileScreen').classList.add('hidden');
+  document.getElementById('mainApp').style.display = 'block';
+  const initials = coach.name.split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+  document.getElementById('coachAvatar').textContent = initials;
+  document.getElementById('coachName').textContent = coach.name;
+  initApp();
+}
+
+function switchCoach() {
+  resetSpinState();
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('profileScreen').classList.remove('hidden');
+  renderCoachGrid();
+}
+
+let smallModalCallback = null;
+let smallModalIsConfirm = false;
+function openSmallModal(title, body, defaultValue, inputType, callback) {
+  document.getElementById('smModalTitle').textContent = title;
+  document.getElementById('smModalBody').textContent = body;
+  const inp = document.getElementById('smModalInput');
+  inp.style.display = '';
+  inp.type = inputType || 'text';
+  inp.value = defaultValue || '';
+  smallModalCallback = callback;
+  smallModalIsConfirm = false;
+  document.getElementById('smallModalBg').classList.add('show');
+  setTimeout(() => inp.focus(), 50);
+  inp.onkeypress = (e) => { if (e.key === 'Enter') confirmSmallModal(); };
+}
+function openConfirmModal(title, body, callback) {
+  document.getElementById('smModalTitle').textContent = title;
+  document.getElementById('smModalBody').textContent = body;
+  const inp = document.getElementById('smModalInput');
+  inp.style.display = 'none';
+  smallModalCallback = callback;
+  smallModalIsConfirm = true;
+  document.getElementById('smallModalBg').classList.add('show');
+}
+function closeSmallModal() {
+  document.getElementById('smallModalBg').classList.remove('show');
+  document.getElementById('smModalInput').style.display = '';
+  smallModalCallback = null;
+  smallModalIsConfirm = false;
+}
+function confirmSmallModal() {
+  if (smallModalIsConfirm) {
+    const cb = smallModalCallback;
+    closeSmallModal();
+    if (cb) cb();
+    return;
+  }
+  const val = document.getElementById('smModalInput').value.trim();
+  const cb = smallModalCallback;
+  closeSmallModal();
+  if (cb) cb(val);
+}
+
+// Confirm a destructive gym-wide action with the shared passcode.
+// Used wherever an edit affects every coach in the gym (deleting a shared format,
+// deleting a shared movement, etc.) so it can't happen by accident.
+function openPasscodeConfirm(title, body, callback) {
+  openSmallModal(
+    title,
+    body + ` Enter the gym passcode (${DELETE_PASSCODE}) to confirm.`,
+    '',
+    'password',
+    (code) => {
+      if (code !== DELETE_PASSCODE) { showToast('WRONG PASSCODE — NO CHANGES MADE', true); return; }
+      callback();
+    }
+  );
+}
+
+function addCoachPrompt() {
+  openSmallModal('Add new coach', 'Enter the coach\'s name.', '', 'text', async (name) => {
+    if (!name) return;
+    if (coaches.some(c => c.name.toLowerCase() === name.toLowerCase())) { showToast('NAME ALREADY EXISTS', true); return; }
+    let newCoach;
+    if (USE_SUPABASE) {
+      try { const r = await sbRequest('POST', 'coaches', [{ name }]); newCoach = r[0]; }
+      catch(e) { showToast('FAILED TO ADD', true); return; }
+    } else { newCoach = { id: Date.now(), name }; }
+    coaches.push(newCoach);
+    coaches.sort((a,b) => a.name.localeCompare(b.name));
+    persistLocal();
+    renderCoachGrid();
+    showToast('COACH ADDED');
+  });
+}
+
+function deleteCoach(id, name) {
+  openSmallModal(`Delete ${name}?`, 'Enter passcode to confirm.', '', 'password', async (code) => {
+    if (code !== DELETE_PASSCODE) { showToast('WRONG PASSCODE', true); return; }
+    if (USE_SUPABASE) {
+      try {
+        await sbRequest('DELETE', `coach_doses?coach_id=eq.${id}`);
+        await sbRequest('DELETE', `coach_prefs?coach_id=eq.${id}`);
+        await sbRequest('DELETE', `coach_history?coach_id=eq.${id}`);
+        await sbRequest('DELETE', `coaches?id=eq.${id}`);
+      } catch(e) { showToast('DELETE FAILED', true); return; }
+    } else {
+      try {
+        localStorage.removeItem(`ss_doses_${id}`);
+        localStorage.removeItem(`ss_excluded_a_${id}`);
+        localStorage.removeItem(`ss_excluded_b_${id}`);
+        localStorage.removeItem(`ss_history_${id}`);
+      } catch(e) {}
+    }
+    coaches = coaches.filter(c => c.id !== id);
+    persistLocal();
+    renderCoachGrid();
+    showToast('COACH DELETED');
+  });
+}
+
+function escapeHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escapeAttr(s) { return String(s||'').replace(/"/g,'&quot;').replace(/'/g,"\\'"); }
+
+// ============================================================
+// SPIN STATE
+// ============================================================
+let state = {
+  formatA: null,
+  formatB: null,
+  slots: [],   // includes both A and B slots; each has .half = 'A' or 'B'
+  currentMovementIdx: -1,
+  phase: 'idle',  // idle | format-a-done | format-b-done | spinning-doses | complete
+  spinning: false
+};
+
+function resetSpinState() {
+  state = { formatA: null, formatB: null, slots: [], currentMovementIdx: -1, phase: 'idle', spinning: false };
+}
+
+// ============================================================
+// BALANCED TIER DISTRIBUTION (equal-weight multisets)
+// ============================================================
+function generateBalancedTiers(N) {
+  if (N <= 0) return [];
+  if (N === 1) return ['med'];
+  const multisets = [];
+  const maxK = Math.floor(N / 2);
+  for (let k = 0; k <= maxK; k++) {
+    const k_med = N - 2 * k;
+    if (k_med < 0) continue;
+    multisets.push({ k_min: k, k_med, k_max: k });
+  }
+  const chosen = multisets[Math.floor(Math.random() * multisets.length)];
+  const tiers = [];
+  for (let i = 0; i < chosen.k_min; i++) tiers.push('min');
+  for (let i = 0; i < chosen.k_med; i++) tiers.push('med');
+  for (let i = 0; i < chosen.k_max; i++) tiers.push('max');
+  for (let i = tiers.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [tiers[i], tiers[j]] = [tiers[j], tiers[i]];
+  }
+  return tiers;
+}
+
+// ============================================================
+// HORIZONTAL SCROLLER
+// ============================================================
+const PALETTE = ['#d5b75f', '#4cc9f0', '#e63946', '#06d6a0', '#a663cc', '#f77f00', '#f72585', '#3a86ff', '#80ed99', '#fcbf49', '#ff006e', '#e8c97a'];
+
+function getItemWidth() {
+  // Fallback only — the new spinScroller measures tile widths directly via
+  // getBoundingClientRect() rather than relying on this constant. Kept for
+  // legacy callers like prepareMovementScroller / initFormatScrollerPreview
+  // which only need an approximate width to seed initial layout.
+  const w = window.innerWidth;
+  if (w <= 380) return 101;   // very narrow phones (matches CSS flex+margin)
+  if (w <= 700) return 116;   // standard mobile
+  if (w <= 600) return 136;   // (kept for legacy, never reached after above)
+  return 168;                  // desktop
+}
+
+/**
+ * Animate the scrolling strip and land on items[winnerIdx].
+ *
+ * Design goal: the tile under the central indicator at the end of the
+ * animation MUST be the same tile that was passed in as the winner. Past
+ * versions of this function predicted final positions using hardcoded tile
+ * widths and accumulated float-math errors over hundreds of tiles. The fix:
+ * stop predicting, start measuring.
+ *
+ * Flow:
+ *   1. Render a long strip of tiles into the track.
+ *   2. Force layout, then measure each tile's actual rendered position.
+ *   3. Pick a "target tile" — one specific tile in the strip whose label
+ *      matches items[winnerIdx] and that sits comfortably near the end
+ *      (leaving buffer tiles after it).
+ *   4. Animate the track by translating it so the target tile's measured
+ *      center aligns with the measured indicator center.
+ *   5. After animation completes, re-measure to confirm which tile is
+ *      under the indicator and mark THAT one as the winner. If somehow
+ *      the wrong tile ended up under the indicator (shouldn't happen but
+ *      this is the safety net), the badge follows the truth not the math.
+ */
+function spinScroller(track, items, subs, winnerIdx) {
+  return new Promise(resolve => {
+    const wrap = track.parentElement;
+
+    // ---- Step 1: Build a strip of tiles ----
+    // We want the strip to be wide enough that:
+    //   - Plenty of tiles enter from the right during the spin
+    //   - Plenty of tiles remain to the right of the winner when it lands
+    //     (so no blank space appears past the last tile)
+    // Build 80 tiles repeated from items, place winner near 75% through.
+    // 80 is plenty for any viewport up to 2000px wide with any tile width.
+    const STRIP_SIZE = 80;
+    const winnerStripPosition = Math.floor(STRIP_SIZE * 0.7);  // tile index in strip
+    // Adjust so the tile AT that position has the right label
+    // (winnerStripPosition mod items.length === winnerIdx)
+    const winnerPositionInStrip = winnerStripPosition - (winnerStripPosition % items.length) + winnerIdx;
+
+    track.innerHTML = '';
+    track.style.transition = 'none';
+    track.style.transform = 'translateX(0px)';
+
+    const tileEls = [];
+    for (let i = 0; i < STRIP_SIZE; i++) {
+      const itemIdx = i % items.length;
+      const el = document.createElement('div');
+      el.className = 'scroller-item';
+      el.dataset.stripIdx = i;
+      el.dataset.itemIdx = itemIdx;
+      el.innerHTML = `
+        <div class="item-color" style="background:${PALETTE[itemIdx % PALETTE.length]}"></div>
+        <div class="item-label">${escapeHtml(items[itemIdx])}</div>
+        ${subs && subs[itemIdx] ? `<div class="item-sub">${escapeHtml(subs[itemIdx])}</div>` : ''}
+      `;
+      track.appendChild(el);
+      tileEls.push(el);
+    }
+
+    // ---- Step 2: Force layout, then measure everything ----
+    // Reading offsetWidth forces a synchronous layout. Now all bounding rects
+    // are accurate. We measure positions relative to the track's own
+    // coordinate system (track.scrollLeft/getBoundingClientRect.left), not
+    // viewport coords — that way the measurements are independent of where
+    // the wrap is on the page.
+    void track.offsetWidth;
+    const trackRect = track.getBoundingClientRect();
+    const wrapRect = wrap.getBoundingClientRect();
+
+    // The indicator's visual center, relative to the track's origin at x=0.
+    // Wrap center − track origin = where indicator sits within the track.
+    const indicatorCenterInTrack = (wrapRect.left + wrapRect.width / 2) - trackRect.left;
+
+    // Measured position of the chosen target tile's center, in the track's
+    // coordinate system (since track is at transform: translateX(0) right now,
+    // tile rects directly give us their positions within the track).
+    const targetTile = tileEls[winnerPositionInStrip];
+    const targetRect = targetTile.getBoundingClientRect();
+    const targetCenterInTrack = (targetRect.left + targetRect.width / 2) - trackRect.left;
+
+    // ---- Step 3: Compute exactly how far to translate ----
+    // We want: after translation, targetCenter (in viewport coords) == indicatorCenter (in viewport coords)
+    // Translation moves the track left by translateX pixels.
+    // After translate: target's new viewport x = (targetCenterInTrack + trackRect.left) + translateX
+    // We want that to equal:               wrapRect.left + wrapRect.width / 2
+    // → translateX = (wrapRect.left + wrapRect.width / 2) - (targetCenterInTrack + trackRect.left)
+    //              = indicatorCenterInTrack - targetCenterInTrack
+    const translateX = indicatorCenterInTrack - targetCenterInTrack;
+
+    // ---- Step 4: Animate ----
+    // Force the browser to commit the "transition: none + transform: 0" state
+    // before applying the new transition, so the animation starts fresh.
+    void track.offsetWidth;
+    track.style.transition = 'transform 5.2s cubic-bezier(0.08, 0.62, 0.16, 1)';
+    track.style.transform = `translateX(${translateX}px)`;
+
+    // ---- Step 5: After landing, verify and mark the winner ----
+    setTimeout(() => {
+      // Re-measure: which tile is closest to the indicator NOW?
+      // This is the safety net — the visible winner is whatever's under
+      // the indicator, regardless of what we predicted. If math was off
+      // for any reason, the badge still goes on the correct tile, AND
+      // we resolve with the actually-landed item index so the calling
+      // code records what the user actually sees.
+      const indicatorViewportX = wrapRect.left + wrapRect.width / 2;
+      let closest = null;
+      let closestDist = Infinity;
+      tileEls.forEach(el => {
+        const r = el.getBoundingClientRect();
+        const center = r.left + r.width / 2;
+        const dist = Math.abs(center - indicatorViewportX);
+        if (dist < closestDist) {
+          closestDist = dist;
+          closest = el;
+        }
+      });
+      tileEls.forEach(el => el.classList.remove('winner'));
+      if (closest) closest.classList.add('winner');
+
+      const landedItemIdx = closest ? Number(closest.dataset.itemIdx) : winnerIdx;
+
+      // Defensive: if the closest tile is NOT the one we intended, log it
+      // so we can debug. In a healthy run this never fires.
+      if (landedItemIdx !== winnerIdx) {
+        console.warn('[spinScroller] Visual landing tile differs from intended winner', {
+          intendedItemIdx: winnerIdx,
+          intendedLabel: items[winnerIdx],
+          landedItemIdx,
+          landedLabel: items[landedItemIdx],
+          distancePx: closestDist
+        });
+      }
+      resolve(landedItemIdx);
+    }, 5200);
+  });
+}
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function myFormatsA() {
+  return formats.filter(f => f.half === 'A' && !myExcludedA.includes(f.id));
+}
+function myFormatsB() {
+  return formats.filter(f => f.half === 'B' && !myExcludedB.includes(f.id));
+}
+
+// ============================================================
+// STAGE 1: SPIN PART A FORMAT
+// ============================================================
+async function spinFormatA(isRespin = false) {
+  if (state.spinning) return;
+  const available = myFormatsA();
+  if (available.length === 0) { showToast('NO PART A FORMATS IN YOUR WHEEL — EDIT CONFIG', true); return; }
+
+  state.spinning = true;
+  // Reset everything below
+  state.formatA = null;
+  state.formatB = null;
+  state.slots = [];
+  state.currentMovementIdx = -1;
+  state.phase = 'idle';
+  document.getElementById('movementPanelA').style.display = 'none';
+  document.getElementById('formatPanelB').style.display = 'none';
+  document.getElementById('movementPanelB').style.display = 'none';
+  document.getElementById('doseRevealPanel').style.display = 'none';
+  document.getElementById('progressPanel').style.display = 'none';
+
+  const items = available.map(f => f.name);
+  const subs = available.map(f => 'Part A · ' + f.code);
+  const intendedIdx = Math.floor(Math.random() * available.length);
+  // Use the landed index (what's visually under the indicator) rather than
+  // the intended one — guarantees the recorded format matches what the user sees.
+  const landedIdx = await spinScroller(document.getElementById('formatScrollerA'), items, subs, intendedIdx);
+
+  state.formatA = JSON.parse(JSON.stringify(available[landedIdx]));
+  state.formatA.sections.forEach((sec, sIdx) => {
+    for (let i = 0; i < sec.slots; i++) {
+      state.slots.push({
+        half: 'A',
+        formatCode: state.formatA.code,
+        sectionIdx: sIdx, sectionLabel: sec.label,
+        position: i + 1, sectionTotal: sec.slots,
+        move: null, dose: null, tier: null, pool: sec.pool
+      });
+    }
+  });
+
+  document.getElementById('formatResultA').textContent = state.formatA.code + ' — ' + state.formatA.name;
+  document.getElementById('formatResultA').classList.remove('empty');
+
+  state.currentMovementIdx = state.slots.findIndex(s => !s.move);
+  state.phase = 'spinning-movements-a';
+  document.getElementById('movementPanelA').style.display = 'block';
+  document.getElementById('movementPanelA').classList.remove('dim');
+  document.getElementById('formatPanelA').classList.add('dim');
+  document.getElementById('movementSpinBtnA').disabled = false;
+  prepareMovementScroller('A');
+
+  document.getElementById('progressPanel').style.display = 'block';
+  renderProgress();
+  renderWorkoutCard();
+  state.spinning = false;
+}
+
+// ============================================================
+// STAGE 2: SPIN PART A MOVEMENTS
+// ============================================================
+function prepareMovementScroller(half) {
+  if (state.currentMovementIdx < 0 || state.currentMovementIdx >= state.slots.length) return;
+  const slot = state.slots[state.currentMovementIdx];
+  if (slot.half !== half) return;
+  const usedInSection = state.slots
+    .filter((s,i) => s.half === slot.half && s.sectionIdx === slot.sectionIdx && i !== state.currentMovementIdx && s.move)
+    .map(s => s.move);
+  let pool = slot.pool.filter(m => !usedInSection.includes(m));
+  if (pool.length === 0) pool = slot.pool;
+
+  const track = document.getElementById('movementScroller' + half);
+  track.style.transition = 'none';
+  track.innerHTML = '';
+
+  // Repeat the pool enough times to overfill the wrap, then center the
+  // track horizontally so the visible tiles look like the middle of an
+  // infinite carousel rather than a short, ragged list.
+  const iw = getItemWidth();
+  const wrap = track.parentElement;
+  const wrapWidth = wrap.offsetWidth || 700;
+  const needed = Math.ceil(wrapWidth / iw) + 4;
+  const repeats = Math.max(1, Math.ceil(needed / pool.length));
+  const totalTiles = repeats * pool.length;
+  for (let i = 0; i < totalTiles; i++) {
+    const idx = i % pool.length;
+    const label = pool[idx];
+    const el = document.createElement('div');
+    el.className = 'scroller-item';
+    el.innerHTML = `
+      <div class="item-color" style="background:${PALETTE[idx % PALETTE.length]}"></div>
+      <div class="item-label">${escapeHtml(label)}</div>
+    `;
+    track.appendChild(el);
+  }
+  // Center one of the middle cycles in the wrap
+  const middleTileIdx = Math.floor(totalTiles / 2);
+  const centerOffset = -(middleTileIdx * iw + iw/2) + wrapWidth/2;
+  track.style.transform = `translateX(${centerOffset}px)`;
+
+  document.getElementById('movementContext' + half).innerHTML =
+    `Section: <span class="hot">${escapeHtml(slot.sectionLabel)}</span> · slot <span class="hot">${slot.position}/${slot.sectionTotal}</span> · difficulty rolls in the final dose reveal`;
+}
+
+async function spinMovementA(isRespin = false) {
+  await spinMovement('A', isRespin);
+}
+async function spinMovementB(isRespin = false) {
+  await spinMovement('B', isRespin);
+}
+
+async function spinMovement(half, isRespin = false) {
+  if (state.spinning) return;
+  if (state.currentMovementIdx < 0 || state.currentMovementIdx >= state.slots.length) return;
+  const slot = state.slots[state.currentMovementIdx];
+  if (slot.half !== half) return;
+
+  state.spinning = true;
+  const usedInSection = state.slots
+    .filter((s,i) => s.half === slot.half && s.sectionIdx === slot.sectionIdx && i !== state.currentMovementIdx && s.move)
+    .map(s => s.move);
+  let pool = slot.pool.filter(m => !usedInSection.includes(m));
+  if (pool.length === 0) pool = slot.pool;
+
+  let candidatePool = pool;
+  if (isRespin && slot.move && pool.length > 1) candidatePool = pool.filter(m => m !== slot.move);
+
+  const intendedWinner = pick(candidatePool);
+  const intendedIdx = pool.indexOf(intendedWinner);
+
+  const landedIdx = await spinScroller(document.getElementById('movementScroller' + half), pool, null, intendedIdx);
+
+  const winner = pool[landedIdx];
+  slot.move = winner;
+  document.getElementById('movementResult' + half).innerHTML = escapeHtml(winner);
+  document.getElementById('movementResult' + half).classList.remove('empty');
+
+  renderProgress();
+  renderWorkoutCard();
+
+  if (!isRespin) {
+    // Check if all slots in THIS half are filled
+    const halfSlots = state.slots.filter(s => s.half === half);
+    const halfDone = halfSlots.every(s => s.move);
+
+    if (halfDone) {
+      if (half === 'A') {
+        // Part A done — open Part B
+        state.phase = 'format-a-done';
+        document.getElementById('movementPanelA').classList.add('dim');
+        document.getElementById('movementSpinBtnA').disabled = true;
+        document.getElementById('formatPanelB').style.display = 'block';
+        document.getElementById('formatPanelB').classList.remove('dim');
+        document.getElementById('formatSpinBtnB').disabled = false;
+        showToast('✅ PART A LOCKED IN — SPIN PART B');
+        // Scroll smoothly to Part B
+        setTimeout(() => document.getElementById('formatPanelB').scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
+      } else {
+        // Part B done — open dose reveal
+        // Check overall: all slots (both halves) must have movements
+        const allDone = state.slots.every(s => s.move);
+        if (allDone) {
+          state.phase = 'movements-done';
+          document.getElementById('movementPanelB').classList.add('dim');
+          document.getElementById('movementSpinBtnB').disabled = true;
+          document.getElementById('doseRevealPanel').style.display = 'block';
+          document.getElementById('doseRevealCount').textContent = state.slots.length;
+          showToast('🎯 ALL MOVEMENTS LOCKED IN');
+          setTimeout(() => document.getElementById('doseRevealPanel').scrollIntoView({ behavior: 'smooth', block: 'center' }), 200);
+        }
+      }
+    } else {
+      // Advance to next unfilled slot in this half
+      let next = state.slots.findIndex((s, i) => i > state.currentMovementIdx && s.half === half && !s.move);
+      if (next === -1) next = state.slots.findIndex(s => s.half === half && !s.move);
+      state.currentMovementIdx = next;
+      prepareMovementScroller(half);
+      document.getElementById('movementResult' + half).textContent = '—';
+      document.getElementById('movementResult' + half).classList.add('empty');
+    }
+  }
+  state.spinning = false;
+  renderProgress();
+}
+
+// ============================================================
+// STAGE 3: SPIN PART B FORMAT
+// ============================================================
+async function spinFormatB(isRespin = false) {
+  if (state.spinning) return;
+  if (!state.formatA) { showToast('SPIN PART A FIRST', true); return; }
+  const available = myFormatsB();
+  if (available.length === 0) { showToast('NO PART B FORMATS IN YOUR WHEEL — EDIT CONFIG', true); return; }
+
+  state.spinning = true;
+  // Clear any existing Part B state (if respinning)
+  state.formatB = null;
+  state.slots = state.slots.filter(s => s.half === 'A');
+  document.getElementById('movementPanelB').style.display = 'none';
+  document.getElementById('doseRevealPanel').style.display = 'none';
+
+  const items = available.map(f => f.name);
+  const subs = available.map(f => 'Part B · ' + f.code);
+  const intendedIdx = Math.floor(Math.random() * available.length);
+  const landedIdx = await spinScroller(document.getElementById('formatScrollerB'), items, subs, intendedIdx);
+
+  state.formatB = JSON.parse(JSON.stringify(available[landedIdx]));
+  state.formatB.sections.forEach((sec, sIdx) => {
+    for (let i = 0; i < sec.slots; i++) {
+      state.slots.push({
+        half: 'B',
+        formatCode: state.formatB.code,
+        sectionIdx: sIdx, sectionLabel: sec.label,
+        position: i + 1, sectionTotal: sec.slots,
+        move: null, dose: null, tier: null, pool: sec.pool
+      });
+    }
+  });
+
+  document.getElementById('formatResultB').textContent = state.formatB.code + ' — ' + state.formatB.name;
+  document.getElementById('formatResultB').classList.remove('empty');
+
+  state.currentMovementIdx = state.slots.findIndex(s => s.half === 'B' && !s.move);
+  state.phase = 'spinning-movements-b';
+  document.getElementById('movementPanelB').style.display = 'block';
+  document.getElementById('movementPanelB').classList.remove('dim');
+  document.getElementById('formatPanelB').classList.add('dim');
+  document.getElementById('movementSpinBtnB').disabled = false;
+  prepareMovementScroller('B');
+
+  renderProgress();
+  renderWorkoutCard();
+  state.spinning = false;
+}
+
+// ============================================================
+// FINAL DOSE REVEAL
+// ============================================================
+async function spinAllDoses() {
+  if (state.spinning) return;
+  if (state.phase !== 'movements-done' && state.phase !== 'complete') return;
+
+  state.spinning = true;
+  state.phase = 'spinning-doses';
+  document.getElementById('doseRevealBtn').disabled = true;
+
+  // Roll fresh tiers per (half, section) — each section's tier permutation is independent
+  // Iterate over each half's sections separately
+  ['A','B'].forEach(half => {
+    const halfSlots = state.slots.filter(s => s.half === half);
+    // group by sectionIdx
+    const sectionGroups = {};
+    halfSlots.forEach(s => {
+      if (!sectionGroups[s.sectionIdx]) sectionGroups[s.sectionIdx] = [];
+      sectionGroups[s.sectionIdx].push(s);
+    });
+    Object.values(sectionGroups).forEach(slotsInSection => {
+      const tiers = generateBalancedTiers(slotsInSection.length);
+      slotsInSection.forEach((s, k) => {
+        s.tier = tiers[k];
+        s.dose = null;
+      });
+    });
+  });
+
+  // Precompute winners for each slot
+  const slotData = state.slots.map(slot => {
+    const d = myDoses[slot.move] || { min: '?', med: '?', max: '?' };
+    const winner = slot.tier === 'min' ? d.min : slot.tier === 'med' ? d.med : d.max;
+    return { d, winner, tier: slot.tier };
+  });
+
+  renderProgress();
+
+  const slotGrid = document.getElementById('slotGrid');
+  const doseEls = slotGrid.querySelectorAll('.slot-dose');
+  const tierEls = slotGrid.querySelectorAll('.slot-tier');
+  const slotBlocks = slotGrid.querySelectorAll('.slot-block');
+  slotBlocks.forEach(b => b.classList.add('dose-spinning'));
+  doseEls.forEach(el => el.classList.add('cycling'));
+  tierEls.forEach(el => {
+    el.classList.remove('min','med','max');
+    el.classList.add('cycling-tier');
+    el.textContent = '···';
+  });
+
+  const TIERS = ['min','med','max'];
+  const CYCLE_INTERVAL = 70;
+  const BASE_DURATION = 2400;
+  const STAGGER = 240;
+
+  const stopTimes = slotData.map((_, i) => BASE_DURATION + i * STAGGER);
+  const startTime = performance.now();
+  const stopped = new Array(slotData.length).fill(false);
+
+  return new Promise(resolve => {
+    const interval = setInterval(() => {
+      const elapsed = performance.now() - startTime;
+      let allStopped = true;
+
+      doseEls.forEach((el, i) => {
+        if (stopped[i]) return;
+        if (elapsed >= stopTimes[i]) {
+          const winner = slotData[i].winner;
+          const winnerTier = slotData[i].tier;
+          el.textContent = winner;
+          el.classList.remove('cycling');
+          tierEls[i].classList.remove('cycling-tier');
+          tierEls[i].classList.add(winnerTier);
+          tierEls[i].textContent = winnerTier.toUpperCase();
+          slotBlocks[i].classList.remove('dose-spinning');
+          slotBlocks[i].classList.add('done');
+          state.slots[i].dose = winner;
+          stopped[i] = true;
+        } else {
+          const d = slotData[i].d;
+          el.textContent = pick([d.min, d.med, d.max]);
+          const flickerTier = pick(TIERS);
+          tierEls[i].classList.remove('min','med','max');
+          tierEls[i].classList.add(flickerTier);
+          tierEls[i].textContent = flickerTier.toUpperCase();
+          allStopped = false;
+        }
+      });
+
+      renderWorkoutCard();
+
+      if (allStopped) {
+        clearInterval(interval);
+        state.phase = 'complete';
+        state.spinning = false;
+        document.getElementById('doseRevealBtn').disabled = false;
+        document.getElementById('doseRevealBtn').textContent = '🎲 RE-SPIN ALL DOSES';
+        showToast('🎉 WORKOUT COMPLETE');
+        renderProgress();
+        renderWorkoutCard();
+        // On mobile, auto-expand the workout card so the coach immediately sees the finished WOD
+        if (window.innerWidth <= 700) {
+          document.getElementById('workoutCard').classList.add('expanded');
+        }
+        resolve();
+      }
+    }, CYCLE_INTERVAL);
+  });
+}
+
+// ============================================================
+// PROGRESS PANEL
+// ============================================================
+function renderProgress() {
+  const filled = state.slots.filter(s => s.dose).length;
+  const total = state.slots.length;
+  document.getElementById('progressFilled').textContent = filled;
+  document.getElementById('progressTotal').textContent = total;
+  document.getElementById('progressBarFill').style.width = (total ? (filled / total * 100) : 0) + '%';
+
+  const grid = document.getElementById('slotGrid');
+  grid.innerHTML = '';
+
+  // Render Half A then Half B
+  ['A','B'].forEach(half => {
+    const halfSlots = state.slots.map((s,i) => ({s,i})).filter(x => x.s.half === half);
+    if (halfSlots.length === 0) return;
+
+    // Half divider
+    const fmt = half === 'A' ? state.formatA : state.formatB;
+    const div = document.createElement('div');
+    div.className = 'half-divider ' + half.toLowerCase();
+    div.textContent = `PART ${half}${fmt ? ' · ' + fmt.code : ''}`;
+    grid.appendChild(div);
+
+    // Group by section within half
+    let currentSection = -1;
+    halfSlots.forEach(({s: slot, i}) => {
+      if (slot.sectionIdx !== currentSection) {
+        currentSection = slot.sectionIdx;
+        const header = document.createElement('div');
+        header.className = 'section-header-progress';
+        header.textContent = '↳ ' + slot.sectionLabel.toUpperCase();
+        grid.appendChild(header);
+      }
+      const block = document.createElement('div');
+      block.className = 'slot-block';
+      const isCurrent = (state.phase === 'spinning-movements-a' || state.phase === 'spinning-movements-b')
+                       && i === state.currentMovementIdx;
+      if (isCurrent) block.classList.add('current', slot.half.toLowerCase());
+      else if (slot.dose) block.classList.add('done');
+      else if (slot.move) block.classList.add('done');
+      else block.classList.add('empty');
+
+      const tierClass = slot.tier || '';
+      const tierLabel = slot.tier ? slot.tier.toUpperCase() : '···';
+      block.innerHTML = `
+        <div class="slot-position">${String(slot.position).padStart(2,'0')}</div>
+        <div class="slot-move">${escapeHtml(slot.move) || '— awaiting spin —'}</div>
+        <div class="slot-dose">${escapeHtml(slot.dose) || ''}</div>
+        <div class="slot-tier ${tierClass}">${tierLabel}</div>
+      `;
+      if (slot.move && state.phase !== 'spinning-doses') {
+        block.style.cursor = 'pointer';
+        block.title = 'Click to re-spin this movement';
+        block.addEventListener('click', () => jumpToSlot(i));
+      }
+      grid.appendChild(block);
+    });
+  });
+}
+
+function jumpToSlot(i) {
+  if (state.spinning) return;
+  const slot = state.slots[i];
+  // Reset this slot's movement; clear ALL tiers and doses since dose reveal re-rolls all of them
+  state.slots[i].move = null;
+  state.slots.forEach(s => { s.tier = null; s.dose = null; });
+  state.currentMovementIdx = i;
+  state.phase = 'spinning-movements-' + slot.half.toLowerCase();
+
+  // Make sure the right panel is visible and active
+  const otherHalf = slot.half === 'A' ? 'B' : 'A';
+  document.getElementById('movementPanel' + slot.half).classList.remove('dim');
+  document.getElementById('movementSpinBtn' + slot.half).disabled = false;
+  document.getElementById('doseRevealPanel').style.display = 'none';
+  document.getElementById('doseRevealBtn').textContent = '🎲 SPIN ALL DOSES';
+
+  prepareMovementScroller(slot.half);
+  document.getElementById('movementResult' + slot.half).textContent = '—';
+  document.getElementById('movementResult' + slot.half).classList.add('empty');
+  renderProgress();
+  renderWorkoutCard();
+  showToast('RE-SPIN PART ' + slot.half + ' SLOT ' + String(slot.position).padStart(2,'0'));
+  setTimeout(() => document.getElementById('movementPanel' + slot.half).scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+}
+
+// ============================================================
+// WORKOUT CARD
+// ============================================================
+// Render one half of the workout (Part A or Part B) — includes format, blurb,
+// movement list, and an instructions block. For STRENGTH format with a known
+// movement, also renders the movement-specific rep scheme from STRENGTH_SCHEMES.
+function renderHalfHtml(half) {
+  const fmt = half === 'A' ? state.formatA : state.formatB;
+  if (!fmt) return '';
+  const halfClass = half.toLowerCase();
+  let html = `<div class="wc-half-block ${halfClass}">`;
+  html += `<div class="wc-half-header ${halfClass}">PART ${half} · ${escapeHtml(fmt.code)}</div>`;
+  html += `<div class="wc-half-format">${escapeHtml(fmt.name)}</div>`;
+  html += `<div class="wc-half-blurb">${escapeHtml(fmt.blurb)}</div>`;
+
+  // Movement / dose lines
+  fmt.sections.forEach((sec, sIdx) => {
+    const sectionSlots = state.slots.filter(s => s.half === half && s.sectionIdx === sIdx);
+    if (sec.slots > 1 || fmt.sections.length > 1) {
+      html += `<div class="wc-section-header">↳ ${escapeHtml(sec.label)}</div>`;
+    }
+    sectionSlots.forEach(slot => {
+      if (slot.dose) html += `<div class="wc-line"><span class="num">${escapeHtml(slot.dose)}</span>${escapeHtml(slot.move)}</div>`;
+      else if (slot.move) html += `<div class="wc-line"><span class="num pending">?</span>${escapeHtml(slot.move)}</div>`;
+      else html += `<div class="wc-line pending"><span class="num">·</span>— awaiting spin —</div>`;
+    });
+  });
+
+  // Movement-specific scheme for STRENGTH format
+  if (fmt.code === 'STR') {
+    const slot = state.slots.find(s => s.half === half && s.move);
+    if (slot) {
+      const scheme = STRENGTH_SCHEMES[slot.move];
+      if (scheme) {
+        html += `<div class="wc-scheme ${halfClass}">`;
+        html += `<div class="wc-scheme-label">${escapeHtml(slot.move)} · how to load it</div>`;
+        html += `<div class="wc-scheme-line"><strong>Target:</strong> ${escapeHtml(scheme.target)}</div>`;
+        html += `<div class="wc-scheme-line"><strong>Warm-up:</strong> ${escapeHtml(scheme.warmup)}</div>`;
+        html += `<div class="wc-scheme-line"><strong>Rest:</strong> ${escapeHtml(scheme.rest)}</div>`;
+        html += `<div class="wc-scheme-line"><strong>Cues:</strong> ${escapeHtml(scheme.cues)}</div>`;
+        html += `</div>`;
+      }
+    }
+  }
+
+  // General instructions
+  if (fmt.instructions && fmt.instructions.length) {
+    html += `<div class="wc-notes ${halfClass}">`;
+    html += `<div class="wc-notes-label">How to do it</div>`;
+    fmt.instructions.forEach(line => {
+      html += `<div class="wc-notes-line">${escapeHtml(line)}</div>`;
+    });
+    html += `</div>`;
+  }
+  html += `</div>`; // close .wc-half-block
+  return html;
+}
+
+function renderWorkoutCard() {
+  const card = document.getElementById('workoutCard');
+  const title = document.getElementById('wcTitle');
+  const body = document.getElementById('wcBody');
+  const actions = document.getElementById('wcActions');
+
+  if (!state.formatA && !state.formatB) {
+    card.classList.add('empty');
+    title.textContent = 'AWAITING SPIN';
+    body.innerHTML = '<div class="wc-empty-msg">Spin Part A to begin building today\'s session.</div>';
+    actions.style.display = 'none';
+    return;
+  }
+
+  card.classList.remove('empty');
+  // Title shows the chosen format codes once the workout takes shape
+  let titleParts = [];
+  if (state.formatA) titleParts.push(state.formatA.code);
+  if (state.formatB) titleParts.push(state.formatB.code);
+  title.textContent = titleParts.length ? titleParts.join(' + ') : 'SUNDAY SESSION';
+
+  let html = '';
+  if (state.formatA) html += renderHalfHtml('A');
+  if (state.formatB) html += renderHalfHtml('B');
+  else if (state.formatA) {
+    html += `<div class="wc-half-block b">`;
+    html += `<div class="wc-half-header b" style="opacity:0.5;">PART B · PENDING</div>`;
+    html += `<div class="wc-half-blurb" style="opacity:0.6;">Spin Part B format to fill in the metcon.</div>`;
+    html += `</div>`;
+  }
+
+  body.innerHTML = html;
+  const allDone = state.slots.length > 0 && state.slots.every(s => s.dose);
+  actions.style.display = allDone ? 'flex' : 'none';
+}
+
+// ============================================================
+// HISTORY
+// ============================================================
+async function saveWorkout() {
+  if (!state.formatA || !state.formatB || state.slots.some(s => !s.dose)) return;
+  const entry = {
+    id: Date.now(),
+    date: new Date().toISOString(),
+    formatA: state.formatA,
+    formatB: state.formatB,
+    slots: state.slots
+  };
+  myHistory.unshift(entry);
+  if (myHistory.length > 50) myHistory = myHistory.slice(0, 50);
+  await saveCoachHistoryEntry(entry);
+  renderHistory();
+  showToast('SAVED TO HISTORY');
+}
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  if (myHistory.length === 0) {
+    list.innerHTML = '<div class="hist-empty">No saved spins yet. Complete a workout and hit SAVE.</div>';
+    return;
+  }
+  list.innerHTML = myHistory.map(h => {
+    const d = new Date(h.date);
+    const dateStr = d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' });
+    const timeStr = d.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
+    const slotsA = h.slots.filter(s => s.half === 'A');
+    const slotsB = h.slots.filter(s => s.half === 'B');
+    const aSummary = slotsA.map(s => `${s.dose} ${s.move}`).join(' · ');
+    const bSummary = slotsB.map(s => `${s.dose} ${s.move}`).join(' · ');
+    const fa = h.formatA || h.format; // backward compat
+    const fb = h.formatB;
+    return `<div class="hist-card" onclick="loadFromHistory('${h.id}')">
+      <div class="hist-date">${dateStr} · ${timeStr}</div>
+      ${fa ? `<div class="hist-format-line"><span class="a-mark">A·${escapeHtml(fa.code)}</span>${escapeHtml(fa.name)}</div>` : ''}
+      <div style="font-size:11px;color:var(--ink-dim);margin-bottom:6px;">${escapeHtml(aSummary)}</div>
+      ${fb ? `<div class="hist-format-line"><span class="b-mark">B·${escapeHtml(fb.code)}</span>${escapeHtml(fb.name)}</div>` : ''}
+      <div style="font-size:11px;color:var(--ink-dim);">${escapeHtml(bSummary)}</div>
+    </div>`;
+  }).join('');
+}
+
+function loadFromHistory(id) {
+  const entry = myHistory.find(h => String(h.id) === String(id));
+  if (!entry) return;
+  state.formatA = entry.formatA;
+  state.formatB = entry.formatB;
+  state.slots = entry.slots;
+  state.currentMovementIdx = state.slots.length;
+  state.phase = 'complete';
+
+  if (state.formatA) {
+    document.getElementById('formatResultA').textContent = state.formatA.code + ' — ' + state.formatA.name;
+    document.getElementById('formatResultA').classList.remove('empty');
+    document.getElementById('formatPanelA').classList.add('dim');
+  }
+  if (state.formatB) {
+    document.getElementById('formatPanelB').style.display = 'block';
+    document.getElementById('formatPanelB').classList.add('dim');
+    document.getElementById('formatResultB').textContent = state.formatB.code + ' — ' + state.formatB.name;
+    document.getElementById('formatResultB').classList.remove('empty');
+  }
+  document.getElementById('movementPanelA').style.display = 'none';
+  document.getElementById('movementPanelB').style.display = 'none';
+  document.getElementById('doseRevealPanel').style.display = 'none';
+  document.getElementById('progressPanel').style.display = 'block';
+  renderProgress();
+  renderWorkoutCard();
+  showToast('LOADED FROM HISTORY');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function clearHistory() {
+  if (!confirm('Clear all your saved spins?')) return;
+  await clearCoachHistory();
+  renderHistory();
+}
+
+// ============================================================
+// ACTIONS
+// ============================================================
+function getHalfText(half) {
+  const fmt = half === 'A' ? state.formatA : state.formatB;
+  if (!fmt) return '';
+  let txt = `PART ${half} — ${fmt.name}\n${fmt.blurb}\n\n`;
+  fmt.sections.forEach((sec, sIdx) => {
+    const sectionSlots = state.slots.filter(s => s.half === half && s.sectionIdx === sIdx);
+    if (sec.slots > 1 || fmt.sections.length > 1) txt += `${sec.label}:\n`;
+    sectionSlots.forEach(s => { txt += `  • ${s.dose || '?'} ${s.move || '—'}\n`; });
+  });
+  // Strength scheme
+  if (fmt.code === 'STR') {
+    const slot = state.slots.find(s => s.half === half && s.move);
+    if (slot && STRENGTH_SCHEMES[slot.move]) {
+      const sch = STRENGTH_SCHEMES[slot.move];
+      txt += `\n${slot.move} — how to load it:\n`;
+      txt += `  Target:  ${sch.target}\n`;
+      txt += `  Warm-up: ${sch.warmup}\n`;
+      txt += `  Rest:    ${sch.rest}\n`;
+      txt += `  Cues:    ${sch.cues}\n`;
+    }
+  }
+  // Instructions
+  if (fmt.instructions && fmt.instructions.length) {
+    txt += `\nHow to do it:\n`;
+    fmt.instructions.forEach(line => { txt += `  › ${line}\n`; });
+  }
+  return txt;
+}
+
+function getWorkoutText() {
+  if (!state.formatA && !state.formatB) return '';
+  let txt = `🏋️ SUNDAY SESSION\n\n`;
+  if (state.formatA) txt += getHalfText('A') + '\n';
+  if (state.formatB) txt += getHalfText('B');
+  txt += `\nGenerated by Sunday Spinner · ${currentCoach.name}`;
+  return txt;
+}
+function copyWorkout() { navigator.clipboard.writeText(getWorkoutText()).then(() => showToast('COPIED')); }
+function shareWorkout() {
+  if (navigator.share) navigator.share({ title: 'Sunday WOD', text: getWorkoutText() }).catch(()=>{});
+  else copyWorkout();
+}
+function showToast(msg, error) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (error ? ' error' : '');
+  setTimeout(() => t.className = 'toast', 2400);
+}
+function toggleTV() { document.body.classList.toggle('tv-mode'); }
+
+// On mobile (≤700px), tapping the collapsed workout card expands it to show
+// the full WOD. Tapping the chevron header again (or anywhere outside the body)
+// collapses it back. Only active on mobile — desktop layout has the card always visible.
+function toggleWorkoutCard(e) {
+  if (window.innerWidth > 700) return;  // desktop: card is always visible, no toggling
+  const card = document.getElementById('workoutCard');
+  if (card.classList.contains('empty')) return;  // nothing to expand
+  // If tapping inside the expanded body content, don't collapse — let user read/scroll
+  if (card.classList.contains('expanded')) {
+    // Only collapse if tap was in the header area (above body content)
+    const body = document.getElementById('wcBody');
+    if (e && body && body.contains(e.target)) return;
+    // Also let action buttons handle their own clicks
+    const actions = document.getElementById('wcActions');
+    if (e && actions && actions.contains(e.target)) return;
+  }
+  card.classList.toggle('expanded');
+}
+
+// Escape key exits TV mode or collapses the expanded workout card on mobile
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  if (document.body.classList.contains('tv-mode')) {
+    document.body.classList.remove('tv-mode');
+    return;
+  }
+  const card = document.getElementById('workoutCard');
+  if (card && card.classList.contains('expanded')) {
+    card.classList.remove('expanded');
+  }
+});
+
+// ============================================================
+// SETTINGS MODAL
+// ============================================================
+let editingMovements = null, editingFormats = null, editingDoses = null;
+let editingExcludedA = null, editingExcludedB = null;
+
+function openSettings() {
+  editingMovements = JSON.parse(JSON.stringify(movements));
+  editingFormats = JSON.parse(JSON.stringify(formats));
+  editingDoses = JSON.parse(JSON.stringify(myDoses));
+  editingExcludedA = [...myExcludedA];
+  editingExcludedB = [...myExcludedB];
+  renderMovementsEditor();
+  renderDosesEditor();
+  renderFormatsEditor();
+  document.getElementById('modalBg').classList.add('show');
+}
+function closeSettings() {
+  document.getElementById('modalBg').classList.remove('show');
+  editingMovements = editingFormats = editingDoses = editingExcludedA = editingExcludedB = null;
+}
+function switchTab(ev, name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  ev.target.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+function renderMovementsEditor() {
+  const c = document.getElementById('movementsEditor');
+  c.innerHTML = '';
+  editingMovements.forEach((m, i) => {
+    const row = document.createElement('div');
+    row.className = 'editor-row';
+    row.innerHTML = `
+      <input type="text" value="${escapeAttr(m.name)}" data-idx="${i}" data-field="name" placeholder="Movement name" />
+      <input type="text" value="${escapeAttr(m.default_min)}" data-idx="${i}" data-field="default_min" placeholder="default min" />
+      <input type="text" value="${escapeAttr(m.default_med)}" data-idx="${i}" data-field="default_med" placeholder="default med" />
+      <input type="text" value="${escapeAttr(m.default_max)}" data-idx="${i}" data-field="default_max" placeholder="default max" />
+      <button class="del-btn" onclick="deleteMovementEdit(${i})">✕</button>
+    `;
+    c.appendChild(row);
+  });
+  c.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('input', e => {
+      const idx = +e.target.dataset.idx;
+      editingMovements[idx][e.target.dataset.field] = e.target.value;
+    });
+  });
+}
+function addMovement() {
+  editingMovements.push({ id: 'new_'+Date.now(), name: 'New Movement', default_min: '5', default_med: '10', default_max: '15' });
+  renderMovementsEditor();
+  renderDosesEditor();
+}
+function deleteMovementEdit(i) {
+  const name = editingMovements[i].name;
+  openPasscodeConfirm(
+    `Delete "${name}" for everyone?`,
+    'This removes the movement from the shared library and from every format pool that uses it. Affects all coaches.',
+    () => {
+      editingMovements.splice(i, 1);
+      editingFormats.forEach(f => f.sections.forEach(s => { s.pool = s.pool.filter(m => m !== name); }));
+      if (editingDoses) delete editingDoses[name];
+      renderMovementsEditor();
+      renderDosesEditor();
+      renderFormatsEditor();
+      showToast('MOVEMENT DELETED — SAVE TO COMMIT');
+    }
+  );
+}
+
+function renderDosesEditor() {
+  const c = document.getElementById('dosesEditor');
+  c.innerHTML = '';
+  editingMovements.forEach(m => {
+    const d = editingDoses[m.name] || { min: m.default_min, med: m.default_med, max: m.default_max };
+    editingDoses[m.name] = d;
+    const row = document.createElement('div');
+    row.className = 'editor-row';
+    row.innerHTML = `
+      <input type="text" value="${escapeAttr(m.name)}" readonly style="background:var(--bg-3);color:var(--ink-dim);" />
+      <input type="text" value="${escapeAttr(d.min)}" data-name="${escapeAttr(m.name)}" data-field="min" placeholder="min" />
+      <input type="text" value="${escapeAttr(d.med)}" data-name="${escapeAttr(m.name)}" data-field="med" placeholder="med" />
+      <input type="text" value="${escapeAttr(d.max)}" data-name="${escapeAttr(m.name)}" data-field="max" placeholder="max" />
+      <span></span>
+    `;
+    c.appendChild(row);
+  });
+  c.querySelectorAll('input[data-name]').forEach(inp => {
+    inp.addEventListener('input', e => {
+      const name = e.target.dataset.name;
+      if (!editingDoses[name]) editingDoses[name] = { min:'', med:'', max:'' };
+      editingDoses[name][e.target.dataset.field] = e.target.value;
+    });
+  });
+}
+
+function renderFormatsEditor() {
+  const c = document.getElementById('formatsEditor');
+  c.innerHTML = '';
+
+  ['A','B'].forEach(half => {
+    const halfFormats = editingFormats.map((f, idx) => ({f, idx})).filter(x => x.f.half === half);
+
+    const header = document.createElement('div');
+    header.className = 'formats-section-header ' + half.toLowerCase();
+    header.textContent = half === 'A' ? 'PART A · FIRST HALF (STRENGTH / SKILL)' : 'PART B · SECOND HALF (METCON)';
+    c.appendChild(header);
+
+    if (halfFormats.length === 0) {
+      const empty = document.createElement('div');
+      empty.style.cssText = 'color:var(--ink-dim);font-style:italic;font-size:12px;padding:8px 4px;';
+      empty.textContent = `No Part ${half} formats yet. Click "+ ADD PART ${half} FORMAT" below to add one.`;
+      c.appendChild(empty);
+      return;
+    }
+
+    halfFormats.forEach(({f: fmt, idx: fIdx}) => {
+      const excludedList = half === 'A' ? editingExcludedA : editingExcludedB;
+      const inMyWheel = !excludedList.includes(fmt.id);
+      const card = document.createElement('div');
+      card.className = 'format-card ' + half.toLowerCase();
+      card.innerHTML = `
+        <div class="format-card-header">
+          <label class="include-check"><input type="checkbox" ${inMyWheel?'checked':''} data-fidx="${fIdx}" data-field="include" data-half="${half}" /> IN MY WHEEL</label>
+          <select class="half-select" data-fidx="${fIdx}" data-field="half">
+            <option value="A" ${fmt.half==='A'?'selected':''}>Part A</option>
+            <option value="B" ${fmt.half==='B'?'selected':''}>Part B</option>
+          </select>
+          <input type="text" value="${escapeAttr(fmt.code)}" style="width:80px;" data-fidx="${fIdx}" data-field="code" placeholder="Code" />
+          <input type="text" value="${escapeAttr(fmt.name)}" style="flex:1;min-width:140px;" data-fidx="${fIdx}" data-field="name" placeholder="Format name" />
+          <button class="del-btn" onclick="deleteFormatEdit(${fIdx})">✕</button>
+        </div>
+        <input type="text" value="${escapeAttr(fmt.blurb)}" placeholder="Short description (one line)" style="width:100%;background:var(--bg-2);border:1px solid var(--steel);color:var(--ink);padding:6px 10px;font-family:'Inter',sans-serif;font-size:11px;margin-bottom:8px;" data-fidx="${fIdx}" data-field="blurb" />
+        <label style="font-size:10px;color:var(--ink-dim);letter-spacing:0.15em;text-transform:uppercase;font-weight:700;display:block;margin-bottom:4px;">How to do it (one instruction per line)</label>
+        <textarea data-fidx="${fIdx}" data-field="instructions" placeholder="e.g. Pacing: start at Gear 2, sustainable effort..." style="width:100%;background:var(--bg-2);border:1px solid var(--steel);color:var(--ink);padding:8px 10px;font-family:'Inter',sans-serif;font-size:11px;line-height:1.5;margin-bottom:10px;min-height:80px;resize:vertical;">${escapeHtml((fmt.instructions || []).join('\n'))}</textarea>
+        <div id="sections-${fIdx}"></div>
+        <button class="add-btn" onclick="addSection(${fIdx})">+ ADD SECTION</button>
+      `;
+      c.appendChild(card);
+
+      card.querySelectorAll('input[data-field], select[data-field], textarea[data-field]').forEach(inp => {
+        const handler = e => {
+          const idx = +e.target.dataset.fidx;
+          const field = e.target.dataset.field;
+          if (field === 'include') {
+            const h = e.target.dataset.half;
+            const fmt = editingFormats[idx];
+            if (e.target.checked) {
+              if (h === 'A') editingExcludedA = editingExcludedA.filter(x => x !== fmt.id);
+              else editingExcludedB = editingExcludedB.filter(x => x !== fmt.id);
+            } else {
+              if (h === 'A' && !editingExcludedA.includes(fmt.id)) editingExcludedA.push(fmt.id);
+              else if (h === 'B' && !editingExcludedB.includes(fmt.id)) editingExcludedB.push(fmt.id);
+            }
+          } else if (field === 'half') {
+            editingFormats[idx].half = e.target.value;
+            renderFormatsEditor();
+          } else if (field === 'instructions') {
+            // Split on newlines, drop empty lines
+            editingFormats[idx].instructions = e.target.value.split(/\n/).map(s => s.trim()).filter(Boolean);
+          } else {
+            editingFormats[idx][field] = e.target.value;
+          }
+        };
+        inp.addEventListener('input', handler);
+        if (inp.type === 'checkbox' || inp.tagName === 'SELECT') inp.addEventListener('change', handler);
+      });
+      renderFormatSections(fIdx);
+    });
+  });
+}
+
+function renderFormatSections(fIdx) {
+  const c = document.getElementById('sections-' + fIdx);
+  if (!c) return;
+  c.innerHTML = '';
+  editingFormats[fIdx].sections.forEach((sec, sIdx) => {
+    const sDiv = document.createElement('div');
+    sDiv.className = 'format-section-editor';
+    const moveOpts = editingMovements.map(m => {
+      const checked = sec.pool.includes(m.name) ? 'checked' : '';
+      return `<label><input type="checkbox" ${checked} data-move="${escapeAttr(m.name)}" /> ${escapeHtml(m.name)}</label>`;
+    }).join('');
+    sDiv.innerHTML = `
+      <div class="format-section-editor-header">
+        <input type="text" value="${escapeAttr(sec.label)}" placeholder="Section label" data-field="label" />
+        <span style="font-size:10px;color:var(--ink-dim);">slots:</span>
+        <input type="number" value="${sec.slots}" min="1" max="20" data-field="slots" />
+        <button class="del-btn" onclick="deleteSection(${fIdx}, ${sIdx})">✕</button>
+      </div>
+      <div style="font-size:10px;color:var(--ink-dim);margin-bottom:4px;letter-spacing:0.1em;">MOVEMENT POOL (<span class="pool-count">${sec.pool.length}</span> selected):</div>
+      <div class="checkbox-grid">${moveOpts}</div>
+    `;
+    c.appendChild(sDiv);
+    sDiv.querySelectorAll('input[data-field]').forEach(inp => {
+      inp.addEventListener('input', e => {
+        if (e.target.dataset.field === 'slots') editingFormats[fIdx].sections[sIdx].slots = Math.max(1, +e.target.value || 1);
+        else editingFormats[fIdx].sections[sIdx][e.target.dataset.field] = e.target.value;
+      });
+    });
+    sDiv.querySelectorAll('input[type=checkbox][data-move]').forEach(cb => {
+      cb.addEventListener('change', e => {
+        const moveName = e.target.dataset.move;
+        const sec = editingFormats[fIdx].sections[sIdx];
+        if (e.target.checked) { if (!sec.pool.includes(moveName)) sec.pool.push(moveName); }
+        else sec.pool = sec.pool.filter(m => m !== moveName);
+        const counter = sDiv.querySelector('.pool-count');
+        if (counter) counter.textContent = sec.pool.length;
+      });
+    });
+  });
+}
+function addSection(fIdx) {
+  editingFormats[fIdx].sections.push({ label: 'New section', slots: 3, pool: editingMovements.slice(0,5).map(m=>m.name) });
+  renderFormatSections(fIdx);
+}
+function deleteSection(fIdx, sIdx) {
+  if (editingFormats[fIdx].sections.length <= 1) {
+    showToast('FORMAT NEEDS AT LEAST 1 SECTION', true);
+    return;
+  }
+  openConfirmModal('Delete this section?', 'The section and its movement pool will be removed.', () => {
+    editingFormats[fIdx].sections.splice(sIdx, 1);
+    renderFormatSections(fIdx);
+    showToast('SECTION DELETED');
+  });
+}
+function addFormat(half) {
+  editingFormats.push({
+    id: 'new_'+Date.now(),
+    half: half,
+    code: 'NEW', name: 'New Format', blurb: 'Describe the format',
+    instructions: [],
+    sections: [{ label:'Section 1', slots:3, pool: editingMovements.slice(0,5).map(m=>m.name) }]
+  });
+  renderFormatsEditor();
+}
+
+function resetFormatsToDefaults() {
+  openConfirmModal(
+    'Reset MY settings to defaults?',
+    'This only affects YOUR settings — it resets your personal doses back to the format defaults and includes all formats in your wheel. Other coaches\' setups and the shared formats library are NOT changed. Click SAVE CHANGES afterward to commit.',
+    () => {
+      editingDoses = {};
+      editingMovements.forEach(m => {
+        editingDoses[m.name] = { min: m.default_min, med: m.default_med, max: m.default_max };
+      });
+      editingExcludedA = [];
+      editingExcludedB = [];
+      renderMovementsEditor();
+      renderDosesEditor();
+      renderFormatsEditor();
+      showToast('YOUR SETTINGS RESET — SAVE TO CONFIRM');
+    }
+  );
+}
+
+// Gym-wide reset: wipes the shared formats list and reseeds the 5 built-in defaults.
+// Affects EVERY coach, so passcode-gated.
+function resetGymFormatsToDefaults() {
+  openPasscodeConfirm(
+    'Reset SHARED formats for the whole gym?',
+    'This wipes the gym\'s formats list and reseeds the 5 built-in defaults (STR, YGIG, CONT, AMRAP, CHIP). Every coach\'s custom formats will be lost gym-wide. Movements and personal doses are NOT affected.',
+    () => {
+      editingFormats = DEFAULT_FORMATS.map((f, i) => ({
+        id: 'reset_' + Date.now() + '_' + i,
+        half: f.half,
+        code: f.code,
+        name: f.name,
+        blurb: f.blurb,
+        instructions: [...(f.instructions || [])],
+        sections: f.sections.map(s => ({ ...s, pool: [...s.pool] }))
+      }));
+      editingExcludedA = [];
+      editingExcludedB = [];
+      renderFormatsEditor();
+      showToast('SHARED FORMATS RESET — SAVE TO COMMIT');
+    }
+  );
+}
+function deleteFormatEdit(fIdx) {
+  const fmt = editingFormats[fIdx];
+  openPasscodeConfirm(
+    `Delete "${fmt.name}" for everyone?`,
+    'This removes the format for every coach across the gym. They will lose any "In My Wheel" settings tied to it.',
+    () => {
+      editingFormats.splice(fIdx, 1);
+      renderFormatsEditor();
+      showToast('FORMAT DELETED — SAVE TO COMMIT');
+    }
+  );
+}
+
+async function saveSettings() {
+  if (editingFormats.length === 0) { showToast('NEED AT LEAST 1 FORMAT', true); return; }
+  const aCount = editingFormats.filter(f => f.half === 'A').length;
+  const bCount = editingFormats.filter(f => f.half === 'B').length;
+  if (aCount === 0) { showToast('NEED AT LEAST 1 PART A FORMAT', true); return; }
+  if (bCount === 0) { showToast('NEED AT LEAST 1 PART B FORMAT', true); return; }
+  for (const f of editingFormats) {
+    if (!f.sections || f.sections.length === 0) { showToast(`FORMAT ${f.code} NEEDS A SECTION`, true); return; }
+    for (const sec of f.sections) {
+      if (!sec.pool || sec.pool.length === 0) { showToast(`SECTION "${sec.label}" HAS NO MOVEMENTS`, true); return; }
+    }
+  }
+
+  showToast('SAVING...');
+
+  if (USE_SUPABASE) {
+    try {
+      const oldFmts = JSON.parse(JSON.stringify(editingFormats));
+      await sbRequest('DELETE', 'movements?id=gte.0');
+      const movRows = editingMovements.map(m => ({
+        name: m.name, default_min: m.default_min, default_med: m.default_med, default_max: m.default_max
+      }));
+      if (movRows.length) await sbRequest('POST', 'movements', movRows);
+      movements = await sbRequest('GET', 'movements?select=*&order=name');
+
+      await sbRequest('DELETE', 'formats?id=gte.0');
+      const fmtRows = editingFormats.map(f => ({ half: f.half, code: f.code, name: f.name, blurb: f.blurb, instructions: f.instructions || [], sections: f.sections }));
+      if (fmtRows.length) await sbRequest('POST', 'formats', fmtRows);
+      formats = await sbRequest('GET', 'formats?select=*&order=half,code');
+
+      // Re-map excluded IDs: match by half + code + name since IDs changed
+      const newExcludedA = [], newExcludedB = [];
+      formats.forEach(nf => {
+        const oldMatch = oldFmts.find(of => of.code === nf.code && of.name === nf.name && of.half === nf.half);
+        if (oldMatch) {
+          if (nf.half === 'A' && editingExcludedA.includes(oldMatch.id)) newExcludedA.push(nf.id);
+          if (nf.half === 'B' && editingExcludedB.includes(oldMatch.id)) newExcludedB.push(nf.id);
+        }
+      });
+      myExcludedA = newExcludedA;
+      myExcludedB = newExcludedB;
+      await saveCoachPrefs();
+
+      myDoses = editingDoses;
+      await saveCoachDoses();
+    } catch(e) {
+      console.error(e);
+      showToast('SAVE FAILED — CHECK CONSOLE', true);
+      return;
+    }
+  } else {
+    movements = editingMovements;
+    formats = editingFormats;
+    myDoses = editingDoses;
+    myExcludedA = editingExcludedA;
+    myExcludedB = editingExcludedB;
+    persistLocal();
+    await saveCoachDoses();
+    await saveCoachPrefs();
+  }
+
+  closeSettings();
+  resetSpinState();
+  document.getElementById('formatResultA').textContent = '— spin to begin —';
+  document.getElementById('formatResultA').classList.add('empty');
+  document.getElementById('formatPanelA').classList.remove('dim');
+  document.getElementById('movementPanelA').style.display = 'none';
+  document.getElementById('formatPanelB').style.display = 'none';
+  document.getElementById('movementPanelB').style.display = 'none';
+  document.getElementById('doseRevealPanel').style.display = 'none';
+  document.getElementById('progressPanel').style.display = 'none';
+  renderWorkoutCard();
+  initApp();
+  showToast('CONFIG SAVED');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function initFormatScrollerPreview(half) {
+  const available = half === 'A' ? myFormatsA() : myFormatsB();
+  if (available.length === 0) return;
+  const track = document.getElementById('formatScroller' + half);
+  track.style.transition = 'none';
+  track.style.transform = 'translateX(0px)';
+  track.innerHTML = '';
+  const iw = getItemWidth();
+  const wrap = track.parentElement;
+  const wrapWidth = wrap.offsetWidth || 700;
+  const needed = Math.ceil(wrapWidth / iw) + 4;
+  for (let i = 0; i < needed; i++) {
+    const f = available[i % available.length];
+    const el = document.createElement('div');
+    el.className = 'scroller-item';
+    el.innerHTML = `
+      <div class="item-color" style="background:${PALETTE[(i % available.length) % PALETTE.length]}"></div>
+      <div class="item-label">${escapeHtml(f.name)}</div>
+      <div class="item-sub">Part ${half} · ${escapeHtml(f.code)}</div>
+    `;
+    track.appendChild(el);
+  }
+  const centerOffset = -(iw * Math.floor(needed/2)) + wrapWidth/2 - iw/2;
+  track.style.transform = `translateX(${centerOffset}px)`;
+}
+
+function initApp() {
+  initFormatScrollerPreview('A');
+  // Part B preview is loaded after Part A spin
+  renderHistory();
+}
+
+async function bootstrap() {
+  await loadAllData();
+  renderCoachGrid();
+}
+bootstrap();
+</script>
+</body>
+</html>
