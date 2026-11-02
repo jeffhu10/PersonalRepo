@@ -1,4 +1,13 @@
-This file serves as my Sandbox to work with different AI features, in particular Claude.
+# PersonalRepo
+
+My sandbox for experimenting with AI-assisted development, mainly with Claude. Each project lives in its own folder.
+
 ## Projects
 
-- [workout-spinner](workout-spinner/) — Sunday Spinner workout randomiser (single-page HTML, Supabase-backed)
+| Project | Description |
+| --- | --- |
+| [workout-spinner](workout-spinner/) | Sunday Spinner: picks random workouts for Element Athletics coaches. Single-page web app backed by Supabase. |
+
+## Running a project
+
+These are static web pages with no build step. Open the project's `index.html` in a browser.
