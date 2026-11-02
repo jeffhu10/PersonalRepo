@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
+<title>The Golf Journal — From then to now</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Inter+Tight:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<!--
+================================================================
+   THE GOLF JOURNAL  ·  one-page edition
+   You normally edit only js/data.js:
+     TIMELINE   — your walking record (the milestones)
+     ENTRIES    — your swing thoughts, grouped by year
+     LESSONS    — the almanac
+     COPY       — hero + closing words
+================================================================
+-->
+
+<script src="js/data.js"></script>
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<div class="bar" id="bar">
+  <div class="wrap bar-in">
+    <a href="#top" class="brand" style="text-decoration:none;">The Golf Journal <span class="v">EST. 2024</span></a>
+    <nav>
+      <a href="#record">The Record</a>
+      <a href="#swing">Swing Thoughts</a>
+      <a href="#lessons">Lessons</a>
+      <a href="#close">Where It Stands</a>
+    </nav>
+  </div>
+</div>
+
+<a id="top"></a>
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-copy center">
+      <span class="eyebrow reveal">YOU MISS 100% OF THE SHOTS YOU DON'T TAKE - WAYNE GRETSKY</span>
+      <h1 class="hero-big reveal" id="hero-lead">The Golf Journal</h1>
+      <p class="lede reveal" id="hero-rest">— One stick traded for fourteen clubs. This is where I track the journey, the swings, and what the great game of golf reveals about life.</p>
+    </div>
+    <div class="hero-tri reveal" id="heroStage" aria-label="Where it started, a year ago, and now"></div>
+    <p class="sig reveal hero-sig-c" id="hero-sig">This sport is so different to any sport I've played before, every round feels like a simulation of life. I find the way I approach golf often reveals how I approach life. </p>
+  </div>
+  <div class="scrollcue"><span class="lbl">Scroll</span><span class="ln"></span></div>
+</header>
+
+<main>
+  <!-- ============ THE WALKING RECORD ============ -->
+  <section class="band" id="record">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="eyebrow">MY GOLF STORY</span>
+        <h2>The Timeline</h2>
+        <p>July 2024 to now — every milestone that moved the needle.</p>
+        <div class="crest"></div>
+      </div>
+      <div class="ledger" id="ledger"><div class="spine"></div></div>
+    </div>
+  </section>
+
+  <!-- ============ SWING THOUGHTS ============ -->
+  <section class="band linen" id="swing">
+    <div class="narrow">
+      <div class="sec-head reveal">
+        <span class="eyebrow">The swing journal</span>
+        <h2>From then to now</h2>
+        <p>Open the middle to walk every swing in between.</p>
+        <div class="crest"></div>
+      </div>
+
+      <!-- THEN -->
+      <div class="swing-anchor reveal">
+        <div class="frame dark" id="then-frame">
+          <span class="tag">Before</span><span class="play"></span>
+        </div>
+        <div class="anchor-body then">
+          <span class="eyebrow" style="color:var(--leather)">The beginning · July 2024</span>
+          <h3>Then</h3>
+          <ul id="then-list"></ul>
+        </div>
+      </div>
+
+      <!-- THREAD + EXPANDER -->
+      <div class="thread reveal">
+        <div class="ln"></div>
+        <div class="expander">
+          <button class="exp-toggle" id="expBtn" aria-expanded="false" aria-controls="expBody">
+            <span class="car">▾</span>
+            <span>Open the swings in between</span>
+            <span class="count" id="expCount"></span>
+          </button>
+          <div class="exp-body" id="expBody">
+            <div class="exp-inner">
+              <div class="yeartabs" id="yeartabs"></div>
+              <div class="ygrid" id="ygrid"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOW -->
+      <div class="swing-anchor reveal" style="margin-top:8px;">
+        <div class="frame" id="now-frame">
+          <span class="tag">Current</span><span class="play"></span>
+        </div>
+        <div class="anchor-body now">
+          <span class="eyebrow" style="color:var(--fairway)">Where it stands · May 2026</span>
+          <h3>Now</h3>
+          <ul id="now-list"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LESSONS ============ -->
+  <section class="band" id="lessons">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="eyebrow">Life lessons</span>
+        <h2>What golf keeps teaching me</h2>
+        <p>Some of it’s about golf. Most of it isn’t.</p>
+        <div class="crest"></div>
+      </div>
+      <ol class="almanac reveal" id="almanac"></ol>
+    </div>
+  </section>
+
+  <!-- ============ CLOSING ============ -->
+  <section class="band linen" id="close">
+    <div class="narrow closing reveal">
+      <span class="eyebrow" style="display:block; margin-bottom:18px;">Where it stands</span>
+      <h2 id="close-title"></h2>
+      <div id="close-body"></div>
+      <p class="sig" id="close-sig"></p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap fin">
+    <span>The Golf Journal</span>
+    <span>Practice makes permanent</span>
+    <span>© 2026</span>
+  </div>
+</footer>
+
+<script src="js/app.js"></script>
+
+<div id="vbox" class="vbox" hidden onclick="if(event.target===this)closeVideo()">
+  <div class="vbox-stage">
+    <button class="vbox-x" type="button" onclick="closeVideo()" aria-label="Close video">×</button>
+    <div class="vbox-frame" id="vboxFrame"></div>
+  </div>
+</div>
+</body>
+</html>
