@@ -10,3 +10,6 @@ desktop.ini
 # Local notes and secrets
 *.txt
 .env
+
+# Deploy bundles
+*.zip

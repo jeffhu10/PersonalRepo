@@ -1,13 +1,14 @@
-# PersonalRepo
+# Websites
 
-My sandbox for experimenting with AI-assisted development, mainly with Claude. Each project lives in its own folder.
+Personal websites I build and host on Cloudflare. Each site is a self-contained static folder: no build step, open `index.html` to preview.
 
-## Projects
+## Sites
 
-| Project | Description |
+| Folder | Description |
 | --- | --- |
-| [workout-spinner](workout-spinner/) | Sunday Spinner: picks random workouts for Element Athletics coaches. Single-page web app backed by Supabase. |
+| [golf-journal](golf-journal/) | The Golf Journal: my golf journey, swing notes and lessons. |
+| [workout-spinner](workout-spinner/) | Sunday Spinner: random workout picker for Element Athletics coaches, backed by Supabase. |
 
-## Running a project
+## Deploying
 
-These are static web pages with no build step. Open the project's `index.html` in a browser.
+Zip the site's folder and upload it to Cloudflare. Zips are git-ignored, so they never end up in the repo.
